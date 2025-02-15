@@ -11,7 +11,7 @@ const EditEmployee = () => {
 
   useEffect(() => {
     const fetchEmployee = async () => {
-      const response = await axios.get(`http://localhost:8000/api/admin/employees/${empCode}`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/${empCode}`);
       const employee = response.data;
       setName(employee.name);
       setShiftCode(employee.shift_code);
@@ -27,7 +27,7 @@ const EditEmployee = () => {
     const employeeData = { name, shift_code: shiftCode, dept_code: deptCode };
 
     try {
-      await axios.put(`http://localhost:8000/api/admin/employees/${empCode}`, employeeData);
+      await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/employees/${empCode}`, employeeData);
       navigate('/admin-dashboard');  // Redirect after successful edit
     } catch (error) {
       console.error('Error updating employee:', error);

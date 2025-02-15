@@ -1,30 +1,34 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// Create the AuthContext
 const AuthContext = createContext();
 
-// Custom hook to use AuthContext
 export const useAuth = () => useContext(AuthContext);
 
-// AuthProvider component that wraps the app
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);  
 
-  // Login function to update user state
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setLoading(false); 
+  }, []);
+
   const login = (userData) => {
-    setUser(userData);  // Set user data
-    localStorage.setItem('user', JSON.stringify(userData));  // Store user data in localStorage
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  // Logout function to clear user state
   const logout = () => {
-    setUser(null);  // Clear user data
-    localStorage.removeItem('user');  // Remove from localStorage
-    localStorage.removeItem('token');  // Remove token from localStorage
+    setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

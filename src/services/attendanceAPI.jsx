@@ -1,11 +1,10 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';  
 
 // Log attendance in
 export const logAttendanceIn = async (empCode, startTime) => {
   try {
-    const response = await axios.post(`${API_URL}/attendance/login`, {
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/attendance/login`, {
       emp_code: empCode,
       start_time: startTime,
     });

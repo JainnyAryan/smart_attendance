@@ -1,16 +1,11 @@
-import React from 'react';
-import { Route, Navigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';  // Use AuthContext to check if user is authenticated
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const PrivateRoute = ({ element, ...rest }) => {
-  const { user } = useAuth();  // Get user from AuthContext
+const PrivateRoute = () => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
   
-  return (
-    <Route 
-      {...rest} 
-      element={user ? element : <Navigate to="/" />}  // If authenticated, show the route, else redirect to login
-    />
-  );
+  return user ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 export default PrivateRoute;
