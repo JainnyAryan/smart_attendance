@@ -1,47 +1,54 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // Access authentication context
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
-import { Add, PlusOne } from '@mui/icons-material';
-import styles from './styles/Employees.module.css';
 import axios from 'axios';
+import { Container, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
-const Designations = () => {
-    const { user, logout } = useAuth(); // Get user and logout function from AuthContext
-    const navigate = useNavigate();
-
+const Designations = ({ refreshListFlag, openEditDialog }) => {
     const [designations, setDesignations] = useState([]);
 
     useEffect(() => {
-        const fetchDessignations = async () => {
-            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/designations/`);
-            setDesignations(response.data);
+        const fetchData = async () => {
+            try {
+                const designationsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/designations/`);
+                setDesignations(designationsRes.data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
         };
 
-        fetchDessignations();
-    }, []);
+        fetchData();
+    }, [refreshListFlag]);
 
-    const handleDelete = async (designation_id) => {
-        try {
-            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/designations/${designation_id}`);
-            setEmployees(designations.filter((d) => d.id !== designation_id));
-        } catch (error) {
-            console.error('Error deleting designation:', error);
-        }
-    };
 
     return (
-        <div className={styles.container}>
-            <ul>
-                {designations.map((desg) => (
-                    <li key={desg.id}>
-                        {desg.name}
-                        <button onClick={() => handleDelete(desg.id)}>Delete</button>
-                        <button onClick={() => { }}>Edit</button>
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <Container sx={{ width: "100%", maxWidth: "100vw", padding: 0 }}>
+            <Typography variant="h5" sx={{ marginBottom: 2 }}>Designation List</Typography>
+            <TableContainer component={Paper} sx={{ display: "block", overflowX: "auto" }}>
+                <Table sx={{ width: "100%" }}>
+                    <TableHead>
+                        <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                            <TableCell><b>Name</b></TableCell>
+                            <TableCell><b>Code</b></TableCell>
+                            <TableCell><b>Actions</b></TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {designations.map((designation) => (
+                            <TableRow key={designation.id}>
+                                <TableCell>{designation.name}</TableCell>
+                                <TableCell>{designation.designation_code}</TableCell>
+                                <TableCell>
+                                    <IconButton color="primary" onClick={() => openEditDialog(designation)}>
+                                        <Edit />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Container>
     );
 };
 

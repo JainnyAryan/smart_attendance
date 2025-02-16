@@ -3,7 +3,7 @@ import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText
 import React from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 
-const SideDrawer = ({ drawerItems, isOpen, setIsOpen }) => {
+const SideDrawer = ({ key, drawerItems, isOpen, setIsOpen }) => {
     const navigate = useNavigate();
     const location = useLocation();
     return (

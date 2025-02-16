@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import styles from './styles/Employees.module.css';
+import { Container, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
-const Employees = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
-
+const Employees = ({ refreshListFlag, openEditDialog }) => {
     const [employees, setEmployees] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const employeesRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/`);
-                console.log(employeesRes);
                 setEmployees(employeesRes.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -22,29 +18,41 @@ const Employees = () => {
         };
 
         fetchData();
-    }, []);
+    }, [refreshListFlag]);
 
-    const handleDelete = async (empId) => {
-        try {
-            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/employees/${empId}`);
-            setEmployees(employees.filter((emp) => emp.id !== empId));
-        } catch (error) {
-            console.error('Error deleting employee:', error);
-        }
-    };
 
     return (
-        <div className={styles.container}>
-            <ul>
-                {employees.map((employee) => (
-                    <li key={employee.id}>
-                        {employee.name} - {employee.shift_code} - {employee.dept_code}
-                        <button onClick={() => handleDelete(employee.id)}>Delete</button>
-                        <button onClick={() => { }}>Edit</button>
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <Container sx={{ width: "100%", maxWidth: "100vw", padding: 0 }}>
+            <Typography variant="h5" sx={{ marginBottom: 2 }}>Employee List</Typography>
+            <TableContainer component={Paper} sx={{ display: "block", overflowX: "auto" }}>
+                <Table sx={{ width: "100%" }}>
+                    <TableHead>
+                        <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                            <TableCell><b>Name</b></TableCell>
+                            <TableCell><b>Department</b></TableCell>
+                            <TableCell><b>Designation</b></TableCell>
+                            <TableCell><b>Shift</b></TableCell>
+                            <TableCell><b>Actions</b></TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {employees.map((employee) => (
+                            <TableRow key={employee.id}>
+                                <TableCell>{employee.name}</TableCell>
+                                <TableCell>{employee.department?.name} ({employee.department?.dept_code})</TableCell>
+                                <TableCell>{employee.designation?.name}</TableCell>
+                                <TableCell>{employee.shift?.name} ({employee.shift?.shift_code})</TableCell>
+                                <TableCell>
+                                    <IconButton color="primary" onClick={() => openEditDialog(employee)}>
+                                        <Edit />
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Container>
     );
 };
 

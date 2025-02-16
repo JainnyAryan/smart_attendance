@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { IconClock } from '@tabler/icons-react'
 import React, { useState } from 'react';
-import { Menu, Person, BadgeOutlined, Domain, People } from '@mui/icons-material';
+import { Menu, Person, BadgeOutlined, Domain, People, Dashboard } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SideDrawer from './SideDrawer';
@@ -30,6 +30,11 @@ const Navbar = ({ titleText, actions }) => {
 
     const [selectedPageIndex, setSelectedPageIndex] = useState(0);
     const drawerItems = [
+        {
+            icon: <Dashboard />,
+            title: "Dashboard",
+            link: '/admin',
+        },
         {
             icon: <People />,
             title: "Employees",

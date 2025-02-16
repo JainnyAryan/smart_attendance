@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField, MenuItem } from '@mui/material';
+import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField, MenuItem, Tooltip, Typography } from '@mui/material';
 import { IconClock } from '@tabler/icons-react';
-import { AccessTime, Timer, TimerOff, WatchLater, CheckCircleOutline } from '@mui/icons-material';
+import { AccessTime, Timer, TimerOff, WatchLater, CheckCircleOutline, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
-const AddShift = ({ isOpen, setIsOpen }) => {
+const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shiftData, setShifts }) => {
     const [formData, setFormData] = useState({
         name: '',
         shift_code: '',
@@ -19,8 +19,43 @@ const AddShift = ({ isOpen, setIsOpen }) => {
         same_day: 1,
     });
 
-    const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    useEffect(() => {
+        setErrors({});
+        setIsLoading(false);
+        setIsDeleteDialogOpen(false);
+
+        if (isEditMode && shiftData) {
+            setFormData({
+                name: shiftData.name || '',
+                shift_code: shiftData.shift_code || '',
+                start_time: shiftData.start_time || '',
+                end_time: shiftData.end_time || '',
+                break_time: shiftData.break_time || 0,
+                total_hours: shiftData.total_hours || 0,
+                half_day_shift_hours: shiftData.half_day_shift_hours || 0,
+                late_coming_mins: shiftData.late_coming_mins || 0,
+                early_going_mins: shiftData.early_going_mins || 0,
+                same_day: [0, 1].includes(shiftData.same_day) ? shiftData.same_day : 1,
+            });
+        } else {
+            setFormData({
+                name: '',
+                shift_code: '',
+                start_time: '',
+                end_time: '',
+                break_time: 0,
+                total_hours: 0,
+                half_day_shift_hours: 0,
+                late_coming_mins: 0,
+                early_going_mins: 0,
+                same_day: 1,
+            });
+        }
+    }, [isEditMode, shiftData]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -30,7 +65,7 @@ const AddShift = ({ isOpen, setIsOpen }) => {
         let validatedValue = value;
 
         if (numericFields.includes(name)) {
-            validatedValue = value === "" ? 0 : Math.max(0, Number(value));
+            validatedValue = value === "" ? 0 : Math.max(0, value);
         } else if (name === "same_day") {
             validatedValue = Number(value);
         }
@@ -38,6 +73,9 @@ const AddShift = ({ isOpen, setIsOpen }) => {
         setFormData((prevData) => ({
             ...prevData,
             [name]: validatedValue
+        }));
+        setErrors((prevErrors) => ({
+            ...prevErrors,
         }));
     };
 
@@ -66,26 +104,62 @@ const AddShift = ({ isOpen, setIsOpen }) => {
 
         const formattedData = {
             ...formData,
-            start_time: formData.start_time + ":00",
-            end_time: formData.end_time + ":00"
+            start_time: formData.start_time + (isEditMode ? "" : ":00"),
+            end_time: formData.end_time + (isEditMode ? "" : ":00")
         };
 
         setIsLoading(true);
         try {
-            await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, formattedData);
-            toast.success(`Added a new shift: ${formattedData.name}`);
+            console.log(formattedData);
+            if (isEditMode) {
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${shiftData.id}`, formattedData);
+                toast.success(`Updated shift: ${formattedData.name}`);
+            } else {
+                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, formattedData);
+                toast.success(`Added a new shift: ${formattedData.name}`);
+            }
+            setIsOpen(false);
+            triggerRefreshListFlag();
+            setFormData({
+                name: '',
+                shift_code: '',
+                start_time: '',
+                end_time: '',
+                break_time: 0,
+                total_hours: 0,
+                half_day_shift_hours: 0,
+                late_coming_mins: 0,
+                early_going_mins: 0,
+                same_day: 1,
+            });
         } catch (error) {
-            toast.error(`Error adding shift: ${error.response?.data?.detail || "Unknown error"}`);
-            console.error('Error adding shift:', error);
+            toast.error(`Error ${isEditMode ? 'updating' : 'adding'} shift: ${error || "Unknown error"}`);
+            console.error('Error adding/updating shift:', error);
         } finally {
             setIsOpen(false);
             setIsLoading(false);
         }
     };
 
+    const handleDelete = async (id) => {
+        setIsLoading(true);
+        try {
+            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${id}`);
+            toast.success("Shift deleted successfully!");
+            triggerRefreshListFlag();
+        } catch (error) {
+            toast.error("Error deleting shift.");
+            console.error('Error deleting shift:', error);
+        }
+        finally {
+            setIsLoading(false);
+            setIsOpen(false);
+        }
+    };
+
     return (
         <Dialog open={isOpen} onClose={() => setIsOpen(false)} fullWidth>
-            <DialogTitle>{"New Shift"}</DialogTitle>
+            <DialogTitle>{isEditMode ? "Edit Designation" : "New Designation"}</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
                     <Container display="flex" flexDirection="column" style={{ paddingTop: "10px" }}>
@@ -216,12 +290,43 @@ const AddShift = ({ isOpen, setIsOpen }) => {
                             <MenuItem value={1}>Yes</MenuItem>
                             <MenuItem value={0}>No</MenuItem>
                         </TextField>
+                        {isEditMode &&
+                            <>
+                                <Box height={15} />
+                                <Tooltip arrow open={isDeleteDialogOpen}
+                                    componentsProps={{
+                                        tooltip: {
+                                            sx: {
+                                                bgcolor: 'white',
+                                                color: 'black',
+                                                border: "1px solid grey",
+                                            },
+                                        },
+                                    }}
+                                    title={
+                                        <Box>
+                                            <Typography>Are you sure to delete shift?<br />This cannot be undone.</Typography>
+                                            <br />
+                                            <Box display={'flex'} flexDirection={'row'} justifyContent={'end'}>
+                                                <Button onClick={() => { setIsDeleteDialogOpen(false); }}>No</Button>
+                                                <Button variant='contained' color='error' onClick={() => { handleDelete(shiftData.id); }}>Delete</Button>
+                                            </Box>
+                                        </Box>
+                                    } >
+                                    <Button color="error" variant='contained' fullWidth onClick={() => { setIsDeleteDialogOpen(true); }} disabled={isLoading}>
+                                        <Delete />
+                                        <Box width={12} />
+                                        Delete Shift
+                                    </Button>
+                                </Tooltip>
+                            </>
+                        }
                     </Container>
                 </form>
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => setIsOpen(false)} disabled={isLoading}>Cancel</Button>
-                <Button color="success" onClick={handleSubmit} disabled={isLoading}>Add Shift</Button>
+                <Button color="success" onClick={handleSubmit} disabled={isLoading}>{isEditMode ? 'Update' : 'Add'} Shift</Button>
             </DialogActions>
         </Dialog>
     );

@@ -1,24 +1,41 @@
-import React, { useState } from 'react'
-import Employees from '../../components/Employees'
-import Navbar from '../../components/Navbar'
-import { Box, Button } from '@mui/material'
-import Designations from '../../components/Designations'
-import { Add } from '@mui/icons-material'
-import AddDesignation from '../../components/AddDesignation'
+import React, { useState } from 'react';
+import Designations from '../../components/Designations';
+import Navbar from '../../components/Navbar';
+import { Box, Button } from '@mui/material';
+import { Add } from '@mui/icons-material';
+import AddDesignation from '../../components/AddDesignation';
 
 const DesignationsPage = () => {
     const [isAddDesignationOpen, setIsAddDesignationOpen] = useState(false);
+    const [refreshListFlag, setRefreshListFlag] = useState(false);
+    const [editDesignationData, setEditDesignationData] = useState(null);
+
+    const openEditDialog = (designation) => {
+        setEditDesignationData(designation);
+        setIsAddDesignationOpen(true);
+    };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
             <Navbar titleText={'Designations'} />
-            <Box padding={2}>
-                <Button variant='contained' onClick={() => { setIsAddDesignationOpen(true); }}><Add style={{ marginRight: "10px" }} />Add Designations</Button>
-                <AddDesignation isOpen={isAddDesignationOpen} setIsOpen={setIsAddDesignationOpen} />
-                <Designations />
-            </Box>
-        </div>
-    )
-}
 
-export default DesignationsPage
+            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+                <Button variant="contained" onClick={() => { setEditDesignationData(null); setIsAddDesignationOpen(true); }}>
+                    <Add sx={{ marginRight: 1 }} /> Add Designation
+                </Button>
+            </Box>
+
+            <AddDesignation
+                triggerRefreshListFlag={() => setRefreshListFlag(!refreshListFlag)}
+                isOpen={isAddDesignationOpen}
+                setIsOpen={setIsAddDesignationOpen}
+                isEditMode={!!editDesignationData}
+                designationData={editDesignationData}
+            />
+
+            <Designations refreshListFlag={refreshListFlag} openEditDialog={openEditDialog} />
+        </Box>
+    );
+};
+
+export default DesignationsPage;

@@ -1,24 +1,41 @@
-import React, { useState } from 'react'
-import Employees from '../../components/Employees'
-import Navbar from '../../components/Navbar'
-import { Box, Button } from '@mui/material'
-import Departments from '../../components/Departments'
-import { Add } from '@mui/icons-material'
-import AddDepartment from '../../components/AddDepartment'
+import React, { useState } from 'react';
+import Departments from '../../components/Departments';
+import Navbar from '../../components/Navbar';
+import { Box, Button } from '@mui/material';
+import { Add } from '@mui/icons-material';
+import AddDepartment from '../../components/AddDepartment';
 
 const DepartmentsPage = () => {
     const [isAddDepartmentOpen, setIsAddDepartmentOpen] = useState(false);
+    const [refreshListFlag, setRefreshListFlag] = useState(false);
+    const [editDepartmentData, setEditDepartmentData] = useState(null);
+
+    const openEditDialog = (department) => {
+        setEditDepartmentData(department);
+        setIsAddDepartmentOpen(true);
+    };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
             <Navbar titleText={'Departments'} />
-            <Box padding={2}>
-                <Button variant='contained' onClick={() => { setIsAddDepartmentOpen(true); }}><Add style={{ marginRight: "10px" }} />Add Departments</Button>
-                <AddDepartment isOpen={isAddDepartmentOpen} setIsOpen={setIsAddDepartmentOpen} />
-                <Departments />
-            </Box>
-        </div>
-    )
-}
 
-export default DepartmentsPage
+            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+                <Button variant="contained" onClick={() => { setEditDepartmentData(null); setIsAddDepartmentOpen(true); }}>
+                    <Add sx={{ marginRight: 1 }} /> Add Department
+                </Button>
+            </Box>
+
+            <AddDepartment
+                triggerRefreshListFlag={() => setRefreshListFlag(!refreshListFlag)}
+                isOpen={isAddDepartmentOpen}
+                setIsOpen={setIsAddDepartmentOpen}
+                isEditMode={!!editDepartmentData}
+                departmentData={editDepartmentData}
+            />
+
+            <Departments refreshListFlag={refreshListFlag} openEditDialog={openEditDialog} />
+        </Box>
+    );
+};
+
+export default DepartmentsPage;
