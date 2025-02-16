@@ -6,12 +6,12 @@ import { ToastContainer } from 'react-toastify';
 
 const App = () => {
   return (
-    <AuthProvider>  {/* Wrap the app in AuthProvider if using context for auth */}
-      <ToastContainer position="bottom-center" autoClose={3000} />
-      <Router>
+    <Router>
+      <AuthProvider>  {/* Wrap the app in AuthProvider if using context for auth */}
+        <ToastContainer position="bottom-center" autoClose={3000} />
         <RoutesList />  {/* Render the defined routes */}
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 

@@ -6,24 +6,16 @@ import styles from './styles/Login.module.css'
 import { Box, Button, TextField } from '@mui/material';
 
 const Login = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const { login } = useAuth();  
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/login`, {
-                username,
-                password,
-            });
-
-            const { access_token } = response.data;
-            localStorage.setItem('token', access_token); 
-            login({ username }); 
-            navigate('/dashboard', { replace: true }); 
+            await login(email, password, navigate);
         } catch (err) {
             setError('Invalid credentials');
             throw err;
@@ -37,9 +29,9 @@ const Login = () => {
                 <TextField
                     fullWidth
                     type="text"
-                    label="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    label="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     variant="outlined"
                     required
                 />

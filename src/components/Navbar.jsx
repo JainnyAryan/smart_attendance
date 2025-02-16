@@ -60,7 +60,7 @@ const Navbar = ({ titleText, actions }) => {
 
     const handleSignout = () => {
         setIsLoading(true);
-        logout();
+        logout(navigate);
         setIsLoading(false);
     };
 
@@ -89,7 +89,7 @@ const Navbar = ({ titleText, actions }) => {
                 <Box display={'flex'} flexDirection={'row'} alignItems={'center'}>
                     <Toolbar>
                         <Typography>
-                            Hello, {user?.username}
+                            Hello, {user?.email}
                         </Typography>
                         <Avatar variant="text" onClick={handleSignoutOpen} style={{ marginLeft: "20px" }}>
                             <Person sx={{ color: 'white' }} />

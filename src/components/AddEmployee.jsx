@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField, MenuItem, Tooltip, Typography } from '@mui/material';
-import { BadgeOutlined, Delete, Domain, Person } from '@mui/icons-material';
+import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField, MenuItem, Tooltip, Typography, CircularProgress } from '@mui/material';
+import { BadgeOutlined, Delete, Domain, Email, Numbers, Person } from '@mui/icons-material';
 import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 
 const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, employeeData, setEmployees }) => {
     const [formData, setFormData] = useState({
         name: '',
+        email: '',
+        emp_code: '',
         shift_id: '',
         dept_id: '',
         designation_id: ''
@@ -15,6 +17,7 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
 
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isFetchingEmail, setIsFetchingEmail] = useState(false);
     const [shifts, setShifts] = useState([]);
     const [departments, setDepartments] = useState([]);
     const [designations, setDesignations] = useState([]);
@@ -51,6 +54,8 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
         if (isEditMode && employeeData) {
             setFormData({
                 name: employeeData.name || '',
+                email: employeeData.email || '',
+                emp_code: employeeData.emp_code || '',
                 shift_id: employeeData.shift?.id || '',
                 dept_id: employeeData.department?.id || '',
                 designation_id: employeeData.designation?.id || ''
@@ -58,12 +63,26 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
         } else {
             setFormData({
                 name: '',
+                email: '',
+                emp_code: '',
                 shift_id: '',
                 dept_id: '',
                 designation_id: ''
             });
         }
     }, [isEditMode, employeeData]);
+
+    useEffect(() => {
+        if (formData.name.length > 2) {
+            setIsFetchingEmail(true);
+            axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/suggest-email/${formData.name}`)
+                .then(response => {
+                    setFormData(prev => ({ ...prev, email: response.data.suggested_email }));
+                })
+                .catch(error => console.error("Error fetching email suggestion:", error))
+                .finally(() => setIsFetchingEmail(false));
+        }
+    }, [formData.name]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -80,6 +99,8 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
     const validateForm = () => {
         let newErrors = {};
         if (!formData.name.trim()) newErrors.name = "Employee Name is required.";
+        if (!formData.email.trim()) newErrors.email = "Email id is required.";
+        if (!formData.emp_code.trim()) newErrors.email = "Employee Code is required.";
         if (!formData.shift_id) newErrors.shift_id = "Please select a Shift.";
         if (!formData.dept_id) newErrors.dept_id = "Please select a Department.";
         if (!formData.designation_id) newErrors.designation_id = "Please select a Designation.";
@@ -145,6 +166,46 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
                                 startAdornment: (
                                     <InputAdornment position="start">
                                         <Person />
+                                    </InputAdornment>
+                                )
+                            }}
+                            fullWidth
+                            required
+                        />
+                        <Box height={15} />
+                        <TextField
+                            type="email"
+                            name="email"
+                            label="Email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            error={!!errors.email}
+                            helperText={errors.email}
+                            disabled={isLoading || isEditMode || isFetchingEmail}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Email />
+                                    </InputAdornment>
+                                ),
+                                endAdornment: isFetchingEmail ? <Box><CircularProgress size={20} sx={{ display: "flex" }} /> </Box> : null
+                            }}
+                            fullWidth
+                            required
+                        />
+                        <Box height={15} />
+                        <TextField
+                            type="text"
+                            name="emp_code"
+                            label="Employee Code"
+                            value={formData.emp_code}
+                            onChange={handleChange}
+                            error={!!errors.emp_code}
+                            helperText={errors.emp_code}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Numbers />
                                     </InputAdornment>
                                 )
                             }}
