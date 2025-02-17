@@ -72,17 +72,44 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
         }
     }, [isEditMode, employeeData]);
 
+    const [typingTimeout, setTypingTimeout] = useState(null);
     useEffect(() => {
-        if (formData.name.length > 2) {
-            setIsFetchingEmail(true);
-            axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/suggest-email/${formData.name}`)
-                .then(response => {
-                    setFormData(prev => ({ ...prev, email: response.data.suggested_email }));
-                })
-                .catch(error => console.error("Error fetching email suggestion:", error))
-                .finally(() => setIsFetchingEmail(false));
+        if (formData.name.length > 2 && !isEditMode) {
+            // Clear the previous timeout to reset the debounce timer
+            if (typingTimeout) clearTimeout(typingTimeout);
+
+            // Set a new timeout to delay the API call
+            const newTimeout = setTimeout(() => {
+                setIsFetchingEmail(true);
+                axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/suggest-email-emp-code/${formData.name}`)
+                    .then(response => {
+                        setFormData(prev => ({
+                            ...prev,
+                            email: response.data.suggested_email,
+                            emp_code: response.data.suggested_emp_code
+                        }));
+                    })
+                    .catch(error => console.error("Error fetching email suggestion:", error))
+                    .finally(() => setIsFetchingEmail(false));
+            }, 700);
+
+            setTypingTimeout(newTimeout);
         }
+
+        return () => clearTimeout(typingTimeout); // Cleanup on unmount or re-render
     }, [formData.name]);
+
+    const handleClose = () => {
+        setIsOpen(false);
+        setFormData({
+            name: '',
+            email: '',
+            emp_code: '',
+            shift_id: '',
+            dept_id: '',
+            designation_id: ''
+        });
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -92,7 +119,6 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
         }));
         setErrors((prevErrors) => ({
             ...prevErrors,
-            [name]: value ? '' : `Please select a ${name.replace('_id', '')}`
         }));
     };
 
@@ -123,7 +149,8 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
                 toast.success(`Added new employee: ${formData.name}`);
             }
             triggerRefreshListFlag();
-            setIsOpen(false);
+            handleClose();
+
         } catch (error) {
             toast.error(`Error ${isEditMode ? 'updating' : 'adding'} employee`);
             console.error('Error submitting employee:', error);
@@ -144,12 +171,12 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
         }
         finally {
             setIsLoading(false);
-            setIsOpen(false);
+            handleClose();
         }
     };
 
     return (
-        <Dialog open={isOpen} onClose={() => setIsOpen(false)} fullWidth>
+        <Dialog open={isOpen} onClose={() => handleClose()} fullWidth>
             <DialogTitle>{isEditMode ? "Edit Employee" : "New Employee"}</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -177,11 +204,12 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
                             type="email"
                             name="email"
                             label="Email"
+                            placeholder='Start entering name'
                             value={formData.email}
                             onChange={handleChange}
                             error={!!errors.email}
                             helperText={errors.email}
-                            disabled={isLoading || isEditMode || isFetchingEmail}
+                            disabled={true}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -198,16 +226,19 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
                             type="text"
                             name="emp_code"
                             label="Employee Code"
+                            placeholder='Start entering name'
                             value={formData.emp_code}
                             onChange={handleChange}
                             error={!!errors.emp_code}
                             helperText={errors.emp_code}
+                            disabled={true}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
                                         <Numbers />
                                     </InputAdornment>
-                                )
+                                ),
+                                endAdornment: isFetchingEmail ? <Box><CircularProgress size={20} sx={{ display: "flex" }} /> </Box> : null
                             }}
                             fullWidth
                             required
@@ -329,7 +360,7 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
             </DialogContent>
             <DialogActions>
 
-                <Button onClick={() => setIsOpen(false)} disabled={isLoading}>Cancel</Button>
+                <Button onClick={() => handleClose()} disabled={isLoading}>Cancel</Button>
                 <Button color="success" onClick={handleSubmit} disabled={isLoading}>
                     {isEditMode ? "Update Employee" : "Add Employee"}
                 </Button>
