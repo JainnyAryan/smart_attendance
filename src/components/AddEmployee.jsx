@@ -4,6 +4,7 @@ import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTit
 import { BadgeOutlined, Delete, Domain, Email, Numbers, Person } from '@mui/icons-material';
 import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 
 const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, employeeData, setEmployees }) => {
     const [formData, setFormData] = useState({
@@ -22,15 +23,22 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
     const [departments, setDepartments] = useState([]);
     const [designations, setDesignations] = useState([]);
     const [errors, setErrors] = useState({});
+    const { authToken } = useAuth();
 
     useEffect(() => {
         const fetchDropdownData = async () => {
             setIsLoading(true);
             try {
                 const [shiftsRes, departmentsRes, designationsRes] = await Promise.all([
-                    axios.get(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`),
-                    axios.get(`${import.meta.env.VITE_BASE_URL}/admin/departments/`),
-                    axios.get(`${import.meta.env.VITE_BASE_URL}/admin/designations/`)
+                    axios.get(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, {
+                        headers: { Authorization: `Bearer ${authToken}` },
+                    }),
+                    axios.get(`${import.meta.env.VITE_BASE_URL}/admin/departments/`, {
+                        headers: { Authorization: `Bearer ${authToken}` },
+                    }),
+                    axios.get(`${import.meta.env.VITE_BASE_URL}/admin/designations/`, {
+                        headers: { Authorization: `Bearer ${authToken}` },
+                    })
                 ]);
 
                 setShifts(shiftsRes.data);
@@ -81,7 +89,9 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
             // Set a new timeout to delay the API call
             const newTimeout = setTimeout(() => {
                 setIsFetchingEmail(true);
-                axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/suggest-email-emp-code/${formData.name}`)
+                axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/suggest-email-emp-code/${formData.name}`, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                })
                     .then(response => {
                         setFormData(prev => ({
                             ...prev,
@@ -142,10 +152,14 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
         setIsLoading(true);
         try {
             if (isEditMode) {
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/employees/${employeeData.id}`, formData);
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/employees/${employeeData.id}`, formData, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
                 toast.success(`Updated employee: ${formData.name}`);
             } else {
-                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/employees/`, formData);
+                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/employees/`, formData, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
                 toast.success(`Added new employee: ${formData.name}`);
             }
             triggerRefreshListFlag();
@@ -162,7 +176,9 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
     const handleDelete = async (empId) => {
         setIsLoading(true);
         try {
-            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/employees/${empId}`);
+            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/employees/${empId}`, {
+                headers: { Authorization: `Bearer ${authToken}` },
+            });
             toast.success("Employee deleted successfully!");
             triggerRefreshListFlag();
         } catch (error) {
@@ -339,7 +355,7 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
                                     }}
                                     title={
                                         <Box>
-                                            <Typography>Are you sure to delete employee?<br />This cannot be undone.</Typography>
+                                            <Typography>Are you sure to delete employee?<br />All logs of this employee will be permanently deleted.<br />This cannot be undone.</Typography>
                                             <br />
                                             <Box display={'flex'} flexDirection={'row'} justifyContent={'end'}>
                                                 <Button onClick={() => { setIsDeleteDialogOpen(false); }}>No</Button>

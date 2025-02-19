@@ -4,6 +4,7 @@ import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTit
 import { BadgeOutlined, Delete, Domain, Numbers, Person } from '@mui/icons-material';
 import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 
 const AddDepartment = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, departmentData, setDepartments }) => {
     const [formData, setFormData] = useState({
@@ -14,6 +15,9 @@ const AddDepartment = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, 
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [errors, setErrors] = useState({});
+    const { authToken } = useAuth();
+
+
 
 
     useEffect(() => {
@@ -45,6 +49,14 @@ const AddDepartment = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, 
         }));
     };
 
+    const handleClose = () => {
+        setIsOpen(false);
+        setFormData({
+            name: '',
+            dept_code: '',
+        });
+    }
+
     const validateForm = () => {
         let newErrors = {};
         if (!formData.name.trim()) newErrors.name = "Department Name is required.";
@@ -62,14 +74,18 @@ const AddDepartment = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, 
         try {
             if (isEditMode) {
                 console.log(formData);
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/departments/${departmentData.id}`, formData);
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/departments/${departmentData.id}`, formData, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
                 toast.success(`Updated department: ${formData.name}`);
             } else {
-                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/departments/`, formData);
+                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/departments/`, formData, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
                 toast.success(`Added new department: ${formData.name}`);
             }
             triggerRefreshListFlag();
-            setIsOpen(false);
+            handleClose();
         } catch (error) {
             toast.error(`Error ${isEditMode ? 'updating' : 'adding'} department`);
             console.error('Error submitting department:', error);
@@ -81,7 +97,9 @@ const AddDepartment = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, 
     const handleDelete = async (empId) => {
         setIsLoading(true);
         try {
-            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/departments/${empId}`);
+            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/departments/${empId}`, {
+                headers: { Authorization: `Bearer ${authToken}` },
+            });
             toast.success("Department deleted successfully!");
             triggerRefreshListFlag();
         } catch (error) {
@@ -90,12 +108,12 @@ const AddDepartment = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, 
         }
         finally {
             setIsLoading(false);
-            setIsOpen(false);
+            handleClose();
         }
     };
 
     return (
-        <Dialog open={isOpen} onClose={() => setIsOpen(false)} fullWidth>
+        <Dialog open={isOpen} onClose={() => handleClose()} fullWidth>
             <DialogTitle>{isEditMode ? "Edit Department" : "New Department"}</DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit}>
@@ -153,7 +171,7 @@ const AddDepartment = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, 
                                     }}
                                     title={
                                         <Box>
-                                            <Typography>Are you sure to delete department?<br />This cannot be undone.</Typography>
+                                            <Typography>Are you sure to delete department?<br />All employees of this department will be permanently deleted.<br />This cannot be undone.</Typography>
                                             <br />
                                             <Box display={'flex'} flexDirection={'row'} justifyContent={'end'}>
                                                 <Button onClick={() => { setIsDeleteDialogOpen(false); }}>No</Button>
@@ -174,7 +192,7 @@ const AddDepartment = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, 
             </DialogContent>
             <DialogActions>
 
-                <Button onClick={() => setIsOpen(false)} disabled={isLoading}>Cancel</Button>
+                <Button onClick={() => handleClose()} disabled={isLoading}>Cancel</Button>
                 <Button color="success" onClick={handleSubmit} disabled={isLoading}>
                     {isEditMode ? "Update Department" : "Add Department"}
                 </Button>

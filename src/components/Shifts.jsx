@@ -3,14 +3,18 @@ import axios from 'axios';
 import { Container, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 
 const Shifts = ({ refreshListFlag, openEditDialog }) => {
     const [shifts, setShifts] = useState([]);
+    const { authToken } = useAuth();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const shiftsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`);
+                const shiftsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
                 setShifts(shiftsRes.data);
             } catch (error) {
                 console.error('Error fetching data:', error);

@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { CircularProgress, Container, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, CircularProgress, Container, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 
 const Employees = ({ refreshListFlag, openEditDialog }) => {
     const [employees, setEmployees] = useState([]);
+    const { authToken } = useAuth();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const employeesRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/`);
+                const employeesRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/`, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
                 setEmployees(employeesRes.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -28,7 +32,8 @@ const Employees = ({ refreshListFlag, openEditDialog }) => {
                 <Table sx={{ width: "100%" }}>
                     <TableHead>
                         <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-                            <TableCell><b>Name</b></TableCell>
+                            <TableCell><b>Code</b></TableCell>
+                            <TableCell><b>Name/Email</b></TableCell>
                             <TableCell><b>Department</b></TableCell>
                             <TableCell><b>Designation</b></TableCell>
                             <TableCell><b>Shift</b></TableCell>
@@ -38,7 +43,8 @@ const Employees = ({ refreshListFlag, openEditDialog }) => {
                     <TableBody>
                         {employees.map((employee) => (
                             <TableRow key={employee.id}>
-                                <TableCell>{employee.name}</TableCell>
+                                <TableCell>{employee.emp_code}</TableCell>
+                                <TableCell><div>{employee.name}</div><div>{employee.email}</div></TableCell>
                                 <TableCell>{employee.department?.name} ({employee.department?.dept_code})</TableCell>
                                 <TableCell>{employee.designation?.name}</TableCell>
                                 <TableCell>{employee.shift?.name} ({employee.shift?.shift_code})</TableCell>

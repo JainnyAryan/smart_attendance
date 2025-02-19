@@ -18,6 +18,7 @@ import { Menu, Person, BadgeOutlined, Domain, People, Dashboard } from '@mui/ico
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SideDrawer from './SideDrawer';
+import EmployeeDashboard from './EmployeeDashboard';
 
 const Navbar = ({ titleText, actions }) => {
     const [isSignoutOpen, setIsSignoutOpen] = useState(false);
@@ -29,7 +30,7 @@ const Navbar = ({ titleText, actions }) => {
     const location = useLocation();
 
     const [selectedPageIndex, setSelectedPageIndex] = useState(0);
-    const drawerItems = [
+    const adminDrawerItems = [
         {
             icon: <Dashboard />,
             title: "Dashboard",
@@ -57,6 +58,15 @@ const Navbar = ({ titleText, actions }) => {
         },
     ];
 
+    const employeeDrawerItems = [
+        {
+            icon: <Dashboard />,
+            title: "Dashboard",
+            link: '/dashboard',
+        },
+
+    ];
+
 
     const handleSignout = () => {
         setIsLoading(true);
@@ -78,7 +88,7 @@ const Navbar = ({ titleText, actions }) => {
                 position="static"
                 sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
             >
-                <SideDrawer drawerItems={drawerItems} isOpen={isSideDrawerOpen} setIsOpen={setIsSideDrawerOpen} />
+                <SideDrawer drawerItems={user.is_admin ? adminDrawerItems : employeeDrawerItems} isOpen={isSideDrawerOpen} setIsOpen={setIsSideDrawerOpen} />
                 <Toolbar>
                     <IconButton children={<Menu />} style={{ color: "white" }} onClick={() => { setIsSideDrawerOpen(!isSideDrawerOpen); }} />
                     <Box padding={1} />

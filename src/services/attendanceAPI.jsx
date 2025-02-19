@@ -7,6 +7,8 @@ export const logAttendanceIn = async (empCode, startTime) => {
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/attendance/login`, {
       emp_code: empCode,
       start_time: startTime,
+    }, {
+      headers: { Authorization: `Bearer ${authToken}` },
     });
     return response.data;
   } catch (error) {
@@ -20,6 +22,8 @@ export const logAttendanceOut = async (empCode, endTime) => {
     const response = await axios.post(`${API_URL}/attendance/logout`, {
       emp_code: empCode,
       end_time: endTime,
+    }, {
+      headers: { Authorization: `Bearer ${authToken}` },
     });
     return response.data;
   } catch (error) {

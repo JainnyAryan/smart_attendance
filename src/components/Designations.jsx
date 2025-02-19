@@ -3,14 +3,18 @@ import axios from 'axios';
 import { Container, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 
 const Designations = ({ refreshListFlag, openEditDialog }) => {
     const [designations, setDesignations] = useState([]);
+    const {authToken} = useAuth();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const designationsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/designations/`);
+                const designationsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/designations/`, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
                 setDesignations(designationsRes.data);
             } catch (error) {
                 console.error('Error fetching data:', error);

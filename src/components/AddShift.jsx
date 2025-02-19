@@ -4,6 +4,7 @@ import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTit
 import { IconClock } from '@tabler/icons-react';
 import { AccessTime, Timer, TimerOff, WatchLater, CheckCircleOutline, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 
 const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shiftData, setShifts }) => {
     const [formData, setFormData] = useState({
@@ -22,6 +23,7 @@ const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shift
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [errors, setErrors] = useState({});
+    const {authToken} = useAuth();
 
     useEffect(() => {
         setErrors({});
@@ -112,10 +114,14 @@ const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shift
         try {
             console.log(formattedData);
             if (isEditMode) {
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${shiftData.id}`, formattedData);
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${shiftData.id}`, formattedData, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
                 toast.success(`Updated shift: ${formattedData.name}`);
             } else {
-                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, formattedData);
+                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, formattedData, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                });
                 toast.success(`Added a new shift: ${formattedData.name}`);
             }
             setIsOpen(false);
@@ -144,7 +150,9 @@ const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shift
     const handleDelete = async (id) => {
         setIsLoading(true);
         try {
-            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${id}`);
+            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${id}`, {
+                headers: { Authorization: `Bearer ${authToken}` },
+            });
             toast.success("Shift deleted successfully!");
             triggerRefreshListFlag();
         } catch (error) {
@@ -305,7 +313,7 @@ const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shift
                                     }}
                                     title={
                                         <Box>
-                                            <Typography>Are you sure to delete shift?<br />This cannot be undone.</Typography>
+                                            <Typography>Are you sure to delete shift?<br />All employees of this shift will be permanently deleted.<br />This cannot be undone.</Typography>
                                             <br />
                                             <Box display={'flex'} flexDirection={'row'} justifyContent={'end'}>
                                                 <Button onClick={() => { setIsDeleteDialogOpen(false); }}>No</Button>
