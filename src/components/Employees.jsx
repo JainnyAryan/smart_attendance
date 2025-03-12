@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Box, CircularProgress, Container, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, Menu } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { IconEye, IconEyeCode, IconEyeEdit, IconEyeFilled } from '@tabler/icons-react';
 
 const Employees = ({ refreshListFlag, openEditDialog }) => {
     const [employees, setEmployees] = useState([]);
     const { authToken } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -48,9 +51,12 @@ const Employees = ({ refreshListFlag, openEditDialog }) => {
                                 <TableCell>{employee.department?.name} ({employee.department?.dept_code})</TableCell>
                                 <TableCell>{employee.designation?.name}</TableCell>
                                 <TableCell>{employee.shift?.name} ({employee.shift?.shift_code})</TableCell>
-                                <TableCell>
+                                <TableCell sx={{ padding: 0 }}>
                                     <IconButton color="primary" onClick={() => openEditDialog(employee)}>
                                         <Edit />
+                                    </IconButton>
+                                    <IconButton color="primary" onClick={() => navigate('/admin/employee-details-analytics', { state: { employee: employee } })}>
+                                        <IconEyeFilled />
                                     </IconButton>
                                 </TableCell>
                             </TableRow>

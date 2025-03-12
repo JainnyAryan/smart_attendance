@@ -11,6 +11,8 @@ import DesignationsPage from "../pages/admin/DesignationsPage";
 import PrivateRoute from "./PrivateRoute";
 import AdminRoute from "./AdminRoute";
 import EmployeeDashboardPage from "../pages/employee/EmployeeDashboardPage";
+import EmployeeSystemLogPage from "../pages/employee/EmployeeSystemLogPage";
+import EmployeeDetailsAnalyticsPage from "../pages/admin/EmployeeDetailsAnalyticsPage";
 
 const RoutesList = () => {
   const { loading, user } = useAuth();
@@ -25,7 +27,8 @@ const RoutesList = () => {
 
       {/* Protected Routes */}
       <Route element={<PrivateRoute />}>
-        <Route path="/dashboard" element={<EmployeeDashboardPage/>} />
+        <Route path="/dashboard" element={<EmployeeDashboardPage />} />
+        <Route path="/systemlogs" element={<EmployeeSystemLogPage />} />
 
         {/* Admin-Only Routes */}
         <Route element={<AdminRoute />}>
@@ -33,6 +36,7 @@ const RoutesList = () => {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="employees" element={<EmployeesPage />} />
+            <Route path="employee-details-analytics" element={<EmployeeDetailsAnalyticsPage />} />
             <Route path="shifts" element={<ShiftsPage />} />
             <Route path="departments" element={<DepartmentsPage />} />
             <Route path="designations" element={<DesignationsPage />} />

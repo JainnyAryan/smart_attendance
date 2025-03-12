@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
 
       try {
         if (user) {
+          console.log(user);
           setLoading(false);
           return;
         }

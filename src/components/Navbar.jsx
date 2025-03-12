@@ -12,15 +12,15 @@ import {
     Toolbar,
     Typography
 } from '@mui/material';
-import { IconClock } from '@tabler/icons-react'
+import { IconArrowLeftCircle, IconClock, IconClock12 } from '@tabler/icons-react'
 import React, { useState } from 'react';
-import { Menu, Person, BadgeOutlined, Domain, People, Dashboard } from '@mui/icons-material';
+import { Menu, Person, BadgeOutlined, Domain, People, Dashboard, TimeToLeave, ComputerOutlined, ArrowLeft, ArrowBack } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SideDrawer from './SideDrawer';
 import EmployeeDashboard from './EmployeeDashboard';
 
-const Navbar = ({ titleText, actions }) => {
+const Navbar = ({ titleText, actions, needsBackButton }) => {
     const [isSignoutOpen, setIsSignoutOpen] = useState(false);
     const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +64,11 @@ const Navbar = ({ titleText, actions }) => {
             title: "Dashboard",
             link: '/dashboard',
         },
-
+        {
+            icon: <ComputerOutlined />,
+            title: "System Logs",
+            link: '/systemlogs',
+        }
     ];
 
 
@@ -90,7 +94,10 @@ const Navbar = ({ titleText, actions }) => {
             >
                 <SideDrawer drawerItems={user.is_admin ? adminDrawerItems : employeeDrawerItems} isOpen={isSideDrawerOpen} setIsOpen={setIsSideDrawerOpen} />
                 <Toolbar>
-                    <IconButton children={<Menu />} style={{ color: "white" }} onClick={() => { setIsSideDrawerOpen(!isSideDrawerOpen); }} />
+                    {!needsBackButton ?
+                        <IconButton children={<Menu />} style={{ color: "white" }} onClick={() => { setIsSideDrawerOpen(!isSideDrawerOpen); }} />
+                        : <IconButton children={<ArrowBack />} style={{ color: "white" }} onClick={() => { navigate(-1); }} />
+                    }
                     <Box padding={1} />
                     <Typography variant="h5" component="div">
                         {titleText}

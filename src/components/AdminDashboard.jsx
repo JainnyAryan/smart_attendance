@@ -40,8 +40,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <Container sx={{ width: "100%", maxWidth: "100vw", padding: 2 }}>
-      <Typography variant="h4" sx={{ mb: 3, textAlign: "center" }}>Admin Dashboard</Typography>
+    <Container sx={{ width: "100%", maxWidth: "100dvw", padding: 3 }}>
       <Grid container spacing={2} justifyContent="center">
         {cardData.map((card, index) => (
           <Grid key={index} size={{ xs: 12, sm: 6, md: 6 }}>
