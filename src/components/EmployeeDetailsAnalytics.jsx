@@ -22,6 +22,7 @@ import { Bar, Line } from "react-chartjs-2";
 import EmployeeAnalyticsChart from "./EmployeeAnalyticsChart";
 import { useAuth } from "../context/AuthContext";
 import AttendanceCalendar from "./AttendanceCalendar";
+import LogList from "./LogList";
 
 const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
     const [analyticsData, setAnalyticsData] = useState(null);
@@ -30,7 +31,7 @@ const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
     const [endDate, setEndDate] = useState("2025-03-31");
     const { authToken } = useAuth();
 
-    const { calendarRef, infoRef, analyticsRef } = printRefs;
+    const { calendarRef, infoRef, analyticsRef, biometricLogsRef, systemLogsRef } = printRefs;
 
     useEffect(() => {
         if (employee?.id) {
@@ -161,6 +162,7 @@ const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
                 <AttendanceCalendar empId={employee.id} />
             </Paper>
             <Box padding={2} />
+            {/* GRAPHS */}
             <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, marginBottom: 2 }} ref={analyticsRef}>
                 {/* Date Picker */}
                 <Typography variant="h4" fontWeight="bold" mb={3}>
@@ -223,6 +225,14 @@ const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
                         </Paper>
                     </Grid>
                 </Grid>
+            </Paper>
+            <Box padding={2} />
+            <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, marginBottom: 2 }} ref={biometricLogsRef}>
+                <LogList empId={employee.id} logType='biometric' />
+            </Paper>
+            <Box padding={2} />
+            <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, marginBottom: 2 }} ref={systemLogsRef}>
+                <LogList empId={employee.id} logType='system' />
             </Paper>
         </Container>
     );

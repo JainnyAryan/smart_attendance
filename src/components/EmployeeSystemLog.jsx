@@ -27,10 +27,10 @@ const EmployeeSystemLog = () => {
             try {
                 setLoading(true);
                 const response = await axios.get(
-                    `${import.meta.env.VITE_BASE_URL}/employee/system-log/employee/${empId}`
+                    `${import.meta.env.VITE_BASE_URL}/employee/system-log/employee/latest/${empId}`
                 );
                 const logs = response.data;
-                const mostRecentLog = logs[0];
+                const mostRecentLog = logs;
                 setMostRecentLog(mostRecentLog);
 
                 if (mostRecentLog?.start_time && !mostRecentLog?.end_time) {

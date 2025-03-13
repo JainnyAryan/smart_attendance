@@ -12,7 +12,13 @@ const EmployeeDetailsAnalyticsPage = () => {
 
     const location = useLocation();
     const employee = location.state.employee;
-    const printRefs = { analyticsRef: useRef(), calendarRef: useRef(), infoRef: useRef() };
+    const printRefs = {
+        analyticsRef: useRef(),
+        calendarRef: useRef(),
+        infoRef: useRef(),
+        biometricLogsRef: useRef(),
+        systemLogsRef: useRef(),
+    };
 
     const handlePrint = async () => {
         setIsGenerating(true);
@@ -48,6 +54,8 @@ const EmployeeDetailsAnalyticsPage = () => {
             await addPageFromRef(printRefs.infoRef, true);
             await addPageFromRef(printRefs.calendarRef);
             await addPageFromRef(printRefs.analyticsRef);
+            await addPageFromRef(printRefs.biometricLogsRef);
+            await addPageFromRef(printRefs.systemLogsRef);
 
             // Trigger "Save As" dialog
             pdf.save(`${employee.name}_analytics.pdf`);
@@ -70,4 +78,4 @@ const EmployeeDetailsAnalyticsPage = () => {
     )
 }
 
-export default EmployeeDetailsAnalyticsPage
+export default EmployeeDetailsAnalyticsPage;
