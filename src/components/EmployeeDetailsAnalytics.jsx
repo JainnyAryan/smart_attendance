@@ -154,7 +154,7 @@ const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
             </Paper>
 
             <Box padding={2} />
-            <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, marginBottom: 2 }} ref={calendarRef}>
+            <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, marginBottom: 2, overflowY: "auto" }} ref={calendarRef}>
                 {/* Date Picker */}
                 <Typography variant="h4" fontWeight="bold" mb={3}>
                     Attendance Calendar

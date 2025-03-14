@@ -1,5 +1,3 @@
-// src/components/AttendanceCalendar.js
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -8,25 +6,25 @@ import {
     Container,
     Typography,
     Grid,
-    Paper,
     CircularProgress,
     Box,
-    TextField,
-    Button,
+    IconButton,
     Avatar,
+    Select,
+    MenuItem,
+    FormControl,
+    LinearProgress,
 } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 
 dayjs.extend(isoWeek);
 
 const STATUS_COLORS = {
     "Full Day": "#4caf50", // Green
-    "Half Day": "orange", // Yellow
+    "Half Day": "orange", // Orange
     Absent: "#f44336", // Red
-    "": "#e0e0e000", // Default grey for days with no data
+    "": "#e0e0e000", // Transparent for empty days
 };
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -35,30 +33,40 @@ const AttendanceCalendar = ({ empId }) => {
     const [calendarData, setCalendarData] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
-    const [startDate, setStartDate] = useState(dayjs().startOf("month"));
-    const [endDate, setEndDate] = useState(dayjs().endOf("month"));
-
+    const [currentMonth, setCurrentMonth] = useState(dayjs());
     const { authToken } = useAuth();
+
+    const months = Array.from({ length: 12 }, (_, i) =>
+        dayjs().month(i).format("MMMM")
+    );
+
+    const years = Array.from(
+        { length: 10 },
+        (_, i) => dayjs().year() - 5 + i // 5 years back and 5 years ahead
+    );
 
     useEffect(() => {
         fetchAttendanceData();
-    }, []);
+    }, [currentMonth]);
 
     const fetchAttendanceData = async () => {
         setLoading(true);
         try {
+            const startDate = currentMonth.startOf("month").format("YYYY-MM-DD");
+            const endDate = currentMonth.endOf("month").format("YYYY-MM-DD");
+
             const response = await axios.get(
                 `${import.meta.env.VITE_BASE_URL}/admin/attendance/calendar/`,
                 {
                     params: {
                         emp_id: empId,
-                        start_date: startDate.format("YYYY-MM-DD"),
-                        end_date: endDate.format("YYYY-MM-DD"),
+                        start_date: startDate,
+                        end_date: endDate,
                     },
                     headers: { Authorization: `Bearer ${authToken}` },
                 }
             );
+
             setError("");
             const data = response.data.calendar.reduce((acc, day) => {
                 acc[day.date] = day.status;
@@ -73,20 +81,31 @@ const AttendanceCalendar = ({ empId }) => {
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        fetchAttendanceData();
+    const handleMonthChange = (event) => {
+        const newMonth = dayjs(currentMonth).month(months.indexOf(event.target.value));
+        setCurrentMonth(newMonth);
+    };
+
+    const handleYearChange = (event) => {
+        const newYear = dayjs(currentMonth).year(event.target.value);
+        setCurrentMonth(newYear);
+    };
+
+    const handleArrowClick = (direction) => {
+        setCurrentMonth((prev) =>
+            direction === "prev" ? prev.subtract(1, "month") : prev.add(1, "month")
+        );
     };
 
     const generateCalendar = () => {
-        const daysInMonth = startDate.daysInMonth();
-        const firstDay = startDate.startOf("month").day();
+        const daysInMonth = currentMonth.daysInMonth();
+        const firstDay = currentMonth.startOf("month").day();
         const calendar = [];
 
-        let week = new Array(firstDay).fill(null); // Fill initial empty days
+        let week = new Array(firstDay).fill(null);
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const date = startDate.date(day).format("YYYY-MM-DD");
+            const date = currentMonth.date(day).format("YYYY-MM-DD");
             week.push({ date, status: calendarData[date] || "" });
 
             if (week.length === 7) {
@@ -95,10 +114,9 @@ const AttendanceCalendar = ({ empId }) => {
             }
         }
 
-        // Push last week if not full
         if (week.length > 0) {
             while (week.length < 7) {
-                week.push(null); // Empty days at the end
+                week.push(null);
             }
             calendar.push(week);
         }
@@ -110,47 +128,49 @@ const AttendanceCalendar = ({ empId }) => {
 
     return (
         <Container maxWidth="lg" style={{ marginTop: "20px" }}>
-            <Typography variant="h6" fontWeight="bold" mb={3}>
-                Select date range to view attendance
-            </Typography>
+            <Box display="flex" justifyContent="center" alignItems="center" gap={2} mb={3}>
+                <IconButton onClick={() => handleArrowClick("prev")} aria-label="Previous month">
+                    <ChevronLeft />
+                </IconButton>
 
-            <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <Grid container spacing={2} alignItems="center">
-                        <Grid item>
-                            <DatePicker
-                                label="Start Date"
-                                value={startDate}
-                                onChange={(newValue) => setStartDate(newValue)}
-                                renderInput={(params) => <TextField {...params} fullWidth />}
-                            />
-                        </Grid>
-                        <Grid item>
-                            <DatePicker
-                                label="End Date"
-                                value={endDate}
-                                onChange={(newValue) => setEndDate(newValue)}
-                                renderInput={(params) => <TextField {...params} fullWidth />}
-                            />
-                        </Grid>
-                        <Grid item>
-                            <Button variant="contained" type="submit" disabled={loading}>
-                                Go
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </LocalizationProvider>
-            </form>
+                <FormControl>
+                    <Select
+                        value={currentMonth.format("MMMM")}
+                        onChange={handleMonthChange}
+                    >
+                        {months.map((month) => (
+                            <MenuItem key={month} value={month}>
+                                {month}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                <FormControl>
+                    <Select
+                        value={currentMonth.year()}
+                        onChange={handleYearChange}
+                    >
+                        {years.map((year) => (
+                            <MenuItem key={year} value={year}>
+                                {year}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                <IconButton onClick={() => handleArrowClick("next")} aria-label="Next month">
+                    <ChevronRight />
+                </IconButton>
+            </Box>
 
             {error && (
-                <Typography color="error" mt={2}>
+                <Typography color="error" mb={2}>
                     {error}
                 </Typography>
             )}
 
-
             <Box mt={3}>
-                {/* Weekdays header */}
                 <Grid container spacing={1}>
                     {DAYS_OF_WEEK.map((day) => (
                         <Grid item xs={1.71} key={day}>
@@ -161,42 +181,22 @@ const AttendanceCalendar = ({ empId }) => {
                     ))}
                 </Grid>
 
-                {/* Calendar days */}
-                {calendar.map((week, weekIndex) => (
+                {loading ? <LinearProgress /> : calendar.map((week, weekIndex) => (
                     <Grid container spacing={1} key={weekIndex}>
                         {week.map((day, dayIndex) => (
-                            <Grid item xs={1.71} key={dayIndex} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                            <Grid item xs={1.71} key={dayIndex} sx={{ display: "flex", justifyContent: "center", alignItems: "center", mb: 2 }}>
                                 <Avatar
-                                    elevation={day?.status ? 3 : 0}
                                     sx={{
-                                        width: {
-                                            xs: 35,  // 50px for extra small screens (phones)
-                                            sm: 50,  // 60px for small screens (tablets)
-                                            md: 60,  // 70px for medium screens (laptops)
-                                            lg: 70,  // 80px for large screens (desktops)
-                                            xl: 80,  // 90px for extra-large screens (big monitors)
-                                        },
-                                        height: {
-                                            xs: 35,
-                                            sm: 50,
-                                            md: 60,
-                                            lg: 70,
-                                            xl: 80,
-                                        },
-                                    }}
-                                    style={{
+                                        width: { xs: 35, sm: 50, md: 60 },
+                                        height: { xs: 35, sm: 50, md: 60 },
                                         backgroundColor: STATUS_COLORS[day?.status || ""],
-                                        textAlign: "center",
                                         color: "#fff",
-                                        marginBottom: "10px",
                                     }}
                                 >
                                     {day && (
-                                        <>
-                                            <Typography sx={{ typography: { sm: 'body1', xs: 'body2' } }} display='flex' justifyContent='center' alignItems='center'>
-                                                {dayjs(day.date).date()}
-                                            </Typography>
-                                        </>
+                                        <Typography sx={{ fontSize: { xs: 14, sm: 18, md: 20 } }}>
+                                            {dayjs(day.date).date()}
+                                        </Typography>
                                     )}
                                 </Avatar>
                             </Grid>
@@ -204,7 +204,6 @@ const AttendanceCalendar = ({ empId }) => {
                     </Grid>
                 ))}
             </Box>
-
         </Container>
     );
 };

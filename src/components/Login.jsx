@@ -46,7 +46,7 @@ const Login = () => {
                 overflow: 'hidden'
             }}
         >
-            <Card sx={{ borderRadius: 3, boxShadow: 6, padding: 2, margin: 2 }}>
+            <Card sx={{ borderRadius: 3, boxShadow: 6, padding: 2, margin: 2, width: { xs: "80dvw", md: "60dvw", lg: "50dvw" } }}>
                 <CardContent>
                     <Typography variant="h4" fontWeight="bold" textAlign="center" gutterBottom>
                         MyOrg
