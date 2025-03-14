@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { IconArrowLeftCircle, IconClock, IconClock12 } from '@tabler/icons-react'
 import React, { useState } from 'react';
-import { Menu, Person, BadgeOutlined, Domain, People, Dashboard, TimeToLeave, ComputerOutlined, ArrowLeft, ArrowBack } from '@mui/icons-material';
+import { Menu, Person, BadgeOutlined, Domain, People, Dashboard, TimeToLeave, ComputerOutlined, ArrowLeft, ArrowBack, Folder } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SideDrawer from './SideDrawer';
@@ -40,6 +40,11 @@ const Navbar = ({ titleText, actions, needsBackButton }) => {
             icon: <People />,
             title: "Employees",
             link: '/admin/employees',
+        },
+        {
+            icon: <Folder />,
+            title: "Projects",
+            link: '/admin/projects',
         },
         {
             icon: <Domain />,

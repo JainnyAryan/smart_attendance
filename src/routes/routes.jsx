@@ -13,6 +13,7 @@ import AdminRoute from "./AdminRoute";
 import EmployeeDashboardPage from "../pages/employee/EmployeeDashboardPage";
 import EmployeeSystemLogPage from "../pages/employee/EmployeeSystemLogPage";
 import EmployeeDetailsAnalyticsPage from "../pages/admin/EmployeeDetailsAnalyticsPage";
+import ProjectsPage from "../pages/admin/ProjectsPage";
 
 const RoutesList = () => {
   const { loading, user } = useAuth();
@@ -37,6 +38,7 @@ const RoutesList = () => {
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="employees" element={<EmployeesPage />} />
             <Route path="employee-details-analytics" element={<EmployeeDetailsAnalyticsPage />} />
+            <Route path="projects" element={<ProjectsPage />} />
             <Route path="shifts" element={<ShiftsPage />} />
             <Route path="departments" element={<DepartmentsPage />} />
             <Route path="designations" element={<DesignationsPage />} />
