@@ -6,7 +6,7 @@ import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 
-const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, employeeData, setEmployees }) => {
+const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, employeeData, onCloseEditMode, setEmployees }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -111,6 +111,7 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
 
     const handleClose = () => {
         setIsOpen(false);
+        onCloseEditMode();
         setFormData({
             name: '',
             email: '',

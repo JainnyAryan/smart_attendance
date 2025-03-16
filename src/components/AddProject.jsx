@@ -18,7 +18,7 @@ import { CalendarMonth, Code, Description, Group, Label, Star } from '@mui/icons
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 
-const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, projectData }) => {
+const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, projectData, onCloseEditMode }) => {
     const [formData, setFormData] = useState({
         code: '',
         name: '',
@@ -61,6 +61,7 @@ const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, pro
     }, [isEditMode, projectData]);
 
     const handleClose = () => {
+        onCloseEditMode();
         setIsOpen(false);
         setFormData({
             code: '',

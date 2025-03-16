@@ -30,6 +30,7 @@ const DepartmentsPage = () => {
                 isOpen={isAddDepartmentOpen}
                 setIsOpen={setIsAddDepartmentOpen}
                 isEditMode={!!editDepartmentData}
+                onCloseEditMode={() => setEditDepartmentData(null)}
                 departmentData={editDepartmentData}
             />
 

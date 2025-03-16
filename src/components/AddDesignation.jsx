@@ -6,7 +6,7 @@ import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 
-const AddDesignation = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, designationData, setDesignations }) => {
+const AddDesignation = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, designationData, onCloseEditMode, setDesignations }) => {
     const [formData, setFormData] = useState({
         name: '',
         designation_code: '',
@@ -15,7 +15,7 @@ const AddDesignation = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode,
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [errors, setErrors] = useState({});
-    const {authToken} = useAuth();
+    const { authToken } = useAuth();
 
     useEffect(() => {
         setErrors({});
@@ -180,7 +180,7 @@ const AddDesignation = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode,
             </DialogContent>
             <DialogActions>
 
-                <Button onClick={() => setIsOpen(false)} disabled={isLoading}>Cancel</Button>
+                <Button onClick={() => { setIsOpen(false); onCloseEditMode(); }} disabled={isLoading}>Cancel</Button>
                 <Button color="success" onClick={handleSubmit} disabled={isLoading}>
                     {isEditMode ? "Update Designation" : "Add Designation"}
                 </Button>

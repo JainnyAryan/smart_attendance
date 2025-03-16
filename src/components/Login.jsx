@@ -42,7 +42,8 @@ const Login = () => {
             alignItems="center"
             minHeight={'100dvh'}
             sx={{
-                background: 'linear-gradient(135deg, #667eea 0%,rgb(75, 153, 162) 100%)',
+                // background: 'linear-gradient(135deg, #667eea 0%,rgb(10, 50, 85) 100%)',
+                background: "rgba(7, 88, 159, 0.84)",
                 overflow: 'hidden'
             }}
         >

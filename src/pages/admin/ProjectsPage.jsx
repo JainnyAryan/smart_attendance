@@ -29,11 +29,16 @@ const ProjectsPage = () => {
                 triggerRefreshListFlag={() => setRefreshListFlag(!refreshListFlag)}
                 isOpen={isAddProjectOpen}
                 setIsOpen={setIsAddProjectOpen}
-                isEditMode={!!editProjectData}
+                isEditMode={editProjectData !== null}
+                onCloseEditMode={() => setEditProjectData(null)}
                 projectData={editProjectData}
             />
 
-            <Projects refreshListFlag={refreshListFlag} openEditDialog={openEditDialog} />
+            <Projects
+                refreshListFlag={refreshListFlag}
+                triggerRefreshListFlag={() => setRefreshListFlag(!refreshListFlag)}
+                openEditDialog={openEditDialog}
+            />
         </Box>
     );
 };

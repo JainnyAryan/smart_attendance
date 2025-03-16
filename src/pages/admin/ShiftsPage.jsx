@@ -30,6 +30,7 @@ const ShiftsPage = () => {
                 isOpen={isAddShiftOpen}
                 setIsOpen={setIsAddShiftOpen}
                 isEditMode={!!editShiftData}
+                onCloseEditMode={() => setEditShiftData(null)}
                 shiftData={editShiftData}
             />
 

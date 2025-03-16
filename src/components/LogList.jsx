@@ -34,7 +34,7 @@ const LogList = ({ empId, logType }) => {
     // Function to get current month's start and end dates
     const getCurrentMonthDates = () => {
         const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 2)
             .toISOString()
             .split("T")[0];
         const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
@@ -50,6 +50,8 @@ const LogList = ({ empId, logType }) => {
     }, []);
 
     const fetchLogs = async () => {
+        console.log(startDate);
+        console.log(endDate);
         if (!startDate || !endDate) return;
         setLoading(true);
         try {

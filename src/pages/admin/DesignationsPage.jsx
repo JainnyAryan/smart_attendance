@@ -30,6 +30,7 @@ const DesignationsPage = () => {
                 isOpen={isAddDesignationOpen}
                 setIsOpen={setIsAddDesignationOpen}
                 isEditMode={!!editDesignationData}
+                onCloseEditMode={() => setEditDesignationData(null)}
                 designationData={editDesignationData}
             />
 

@@ -10,6 +10,10 @@ import {
     CircularProgress,
     TextField,
     Button,
+    IconButton,
+    FormControl,
+    Select,
+    MenuItem,
 } from "@mui/material";
 import {
     BadgeOutlined,
@@ -18,26 +22,63 @@ import {
     Person,
 } from "@mui/icons-material";
 import { IconClock } from "@tabler/icons-react";
-import { Bar, Line } from "react-chartjs-2";
+import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+
 import EmployeeAnalyticsChart from "./EmployeeAnalyticsChart";
 import { useAuth } from "../context/AuthContext";
 import AttendanceCalendar from "./AttendanceCalendar";
 import LogList from "./LogList";
 
+dayjs.extend(isoWeek);
+
 const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
     const [analyticsData, setAnalyticsData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [selectedMonth, setSelectedMonth] = useState(dayjs());
     const [startDate, setStartDate] = useState("2025-03-01");
     const [endDate, setEndDate] = useState("2025-03-31");
     const { authToken } = useAuth();
 
     const { calendarRef, infoRef, analyticsRef, biometricLogsRef, systemLogsRef } = printRefs;
+    const months = Array.from({ length: 12 }, (_, i) =>
+        dayjs().month(i).format("MMMM")
+    );
+    const years = Array.from({ length: 10 }, (_, i) => dayjs().year() - 5 + i);
+    useEffect(() => {
+        updateDateRange();
+    }, [selectedMonth]);
+
+    const updateDateRange = () => {
+        const start = selectedMonth.startOf("month").format("YYYY-MM-DD");
+        const end = selectedMonth.endOf("month").format("YYYY-MM-DD");
+        console.log(start);
+        console.log(end);
+        setStartDate(start);
+        setEndDate(end);
+    };
+
+    const handleArrowClick = (direction) => {
+        setSelectedMonth((prev) =>
+            direction === "prev" ? prev.subtract(1, "month") : prev.add(1, "month")
+        );
+    };
+
+    const handleMonthChange = (value) => {
+        const newMonth = dayjs(currentMonth).month(months.indexOf(value));
+        setSelectedMonth(newMonth);
+    };
+
+    const handleYearChange = (year) => {
+        setSelectedMonth(dayjs().year(year));
+    };
 
     useEffect(() => {
         if (employee?.id) {
             fetchAnalytics(employee.id);
         }
-    }, [employee]);
+    }, [employee, startDate, endDate]);
 
     const fetchAnalytics = async (empId) => {
         setLoading(true);
@@ -154,49 +195,51 @@ const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
             </Paper>
 
             <Box padding={2} />
+
             <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, marginBottom: 2, overflowY: "auto" }} ref={calendarRef}>
-                {/* Date Picker */}
                 <Typography variant="h4" fontWeight="bold" mb={3}>
                     Attendance Calendar
                 </Typography>
                 <AttendanceCalendar empId={employee.id} />
             </Paper>
+
             <Box padding={2} />
+
             {/* GRAPHS */}
             <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, marginBottom: 2 }} ref={analyticsRef}>
-                {/* Date Picker */}
                 <Typography variant="h4" fontWeight="bold" mb={3}>
                     Analytics
                 </Typography>
-                <Typography variant="h6" fontWeight="bold" mb={3}>
-                    Select date range to view analytics
-                </Typography>
 
-                <Box display="flex" alignItems="center" gap={2} mb={4}>
-                    <TextField
-                        label="Start Date"
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                        fullWidth
-                    />
-                    <TextField
-                        label="End Date"
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                        fullWidth
-                    />
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => fetchAnalytics(employee.id)}
-                        disabled={loading}
-                    >
-                        Go
-                    </Button>
+                {/* Date Picker */}
+                <Box display="flex" justifyContent="center" alignItems="center" gap={2} mb={4}>
+                    <IconButton onClick={() => handleArrowClick("prev")} disabled={selectedMonth === 0}>
+                        <ChevronLeft />
+                    </IconButton>
+
+                    <FormControl>
+                        <Select value={selectedMonth.format("MMMM")} onChange={(e) => handleMonthChange((e.target.value))}>
+                            {months.map((month, index) => (
+                                <MenuItem key={index} value={month}>
+                                    {month}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl>
+                        <Select value={selectedMonth.year()} onChange={(e) => handleYearChange(e.target.value)}>
+                            {years.map((year) => (
+                                <MenuItem key={year} value={year}>
+                                    {year}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <IconButton onClick={() => handleArrowClick("next")} disabled={selectedMonth === 11}>
+                        <ChevronRight />
+                    </IconButton>
                 </Box>
 
                 {/* Analytics Cards */}

@@ -30,6 +30,7 @@ const EmployeesPage = () => {
                 isOpen={isAddEmployeeOpen}
                 setIsOpen={setIsAddEmployeeOpen}
                 isEditMode={!!editEmployeeData}
+                onCloseEditMode={() => setEditEmployeeData(null)}
                 employeeData={editEmployeeData}
             />
 

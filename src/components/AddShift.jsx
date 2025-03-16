@@ -6,7 +6,7 @@ import { AccessTime, Timer, TimerOff, WatchLater, CheckCircleOutline, Delete } f
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 
-const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shiftData, setShifts }) => {
+const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shiftData, onCloseEditMode, setShifts }) => {
     const [formData, setFormData] = useState({
         name: '',
         shift_code: '',
@@ -23,7 +23,7 @@ const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shift
     const [isLoading, setIsLoading] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [errors, setErrors] = useState({});
-    const {authToken} = useAuth();
+    const { authToken } = useAuth();
 
     useEffect(() => {
         setErrors({});
@@ -333,7 +333,7 @@ const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shift
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => setIsOpen(false)} disabled={isLoading}>Cancel</Button>
+                <Button onClick={() => { setIsOpen(false); onCloseEditMode(); }} disabled={isLoading}>Cancel</Button>
                 <Button color="success" onClick={handleSubmit} disabled={isLoading}>{isEditMode ? 'Update' : 'Add'} Shift</Button>
             </DialogActions>
         </Dialog>
