@@ -14,6 +14,7 @@ import {
     FormControl,
     Select,
     MenuItem,
+    Chip,
 } from "@mui/material";
 import {
     BadgeOutlined,
@@ -197,9 +198,21 @@ const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
             <Box padding={2} />
 
             <Paper elevation={3} sx={{ padding: 3, borderRadius: 2, marginBottom: 2, overflowY: "auto" }} ref={calendarRef}>
-                <Typography variant="h4" fontWeight="bold" mb={3}>
-                    Attendance Calendar
-                </Typography>
+                <Box display='flex' flexDirection='row' justifyContent='space-between' alignItems='start'>
+                    <Typography variant="h4" fontWeight="bold" mb={3}>
+                        Attendance Calendar
+                    </Typography>
+                    <Box
+                        display="flex"
+                        flexWrap="wrap"
+                        justifyContent="flex-end"
+                        gap={0.5}
+                    >
+                        <Chip size="small" avatar={<Avatar sx={{ bgcolor: "#4caf50" }}>{" "}</Avatar>} label="Full Day" />
+                        <Chip size="small" avatar={<Avatar sx={{ bgcolor: "orange" }}>{" "}</Avatar>} label="Half Day" />
+                        <Chip size="small" avatar={<Avatar sx={{ bgcolor: "#f44336" }}>{" "}</Avatar>} label="Absent" />
+                    </Box>
+                </Box>
                 <AttendanceCalendar empId={employee.id} />
             </Paper>
 
