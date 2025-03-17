@@ -62,7 +62,19 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
             const response = await api.get(`${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${project.id}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
             });
-            setAssignedEmployees(response.data);
+
+            // Ensure the data is mapped properly
+            const mappedEmployees = response.data.map(emp => ({
+                allocation_id: emp.id,
+                emp_id: emp.employee.id,
+                name: emp.employee.name,
+                emp_code: emp.employee.emp_code,
+                role: emp.role,
+                deadline: emp.deadline,
+                allocated_on: emp.allocated_on,
+            }));
+
+            setAssignedEmployees(mappedEmployees);
         } catch (error) {
             console.error("Error fetching assigned employees:", error);
         }
@@ -71,31 +83,29 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
     const handleSave = async () => {
         try {
             for (const empStr of modifiedAssignments) {
-                const emp = JSON.parse(empStr); // Convert from string to object
+                const emp = JSON.parse(empStr);
 
                 if (emp.remove) {
-                    // ❌ Remove employee from project
+                    console.log(emp);
                     await api.delete(
-                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${updatedProject.id}/${emp.id}`,
+                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${emp.allocation_id}`,
                         { headers: { Authorization: `Bearer ${authToken}` } }
                     );
                 } else {
-                    // ✅ Add employee to project
                     await api.post(
                         `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/`,
                         {
                             project_id: updatedProject.id,
-                            employee_id: emp.id,
+                            employee_id: emp.emp_id, // Ensure correct employee ID mapping
                             role: emp.role,
                             deadline: emp.deadline,
-                            allocated_on: emp.allocated_on
+                            allocated_on: emp.allocated_on,
                         },
                         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
                     );
                 }
             }
 
-            // ✅ Update project details
             await api.put(
                 `${import.meta.env.VITE_BASE_URL}/admin/projects/${updatedProject.id}`,
                 {
@@ -143,14 +153,14 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
 
     const handleAssignEmployee = (employee) => {
         const assignedEmployee = {
-            ...employee,
+            emp_id: employee.id,
+            name: employee.name,
+            emp_code: employee.emp_code,
             role: roles.length ? roles[0] : "",  // Default role
             deadline: updatedProject.end_date,  // Default to project end date
-            allocated_on: new Date().toISOString().split('T')[0] // Today's date
+            allocated_on: new Date().toISOString().split('T')[0], // Today's date
         };
-
         setAssignedEmployees((prev) => [...prev, assignedEmployee]);
-
         setModifiedAssignments((prev) => {
             const newSet = new Set(prev);
             newSet.add(JSON.stringify(assignedEmployee)); // Store as JSON string to track updates
@@ -159,23 +169,23 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
     };
 
     const handleRemoveEmployee = (employeeId) => {
-        setAssignedEmployees((prev) => prev.filter((emp) => emp.id !== employeeId));
+        setAssignedEmployees((prev) => prev.filter((emp) => emp.emp_id !== employeeId));
 
         setModifiedAssignments((prev) => {
             const newSet = new Set(prev);
-            newSet.add(JSON.stringify({ id: employeeId, remove: true })); // Mark for removal
+            newSet.add(JSON.stringify({ emp_id: employeeId, remove: true })); // Mark for removal
             return newSet;
         });
     };
 
     const handleRoleChange = (employeeId, newRole) => {
         setAssignedEmployees((prev) =>
-            prev.map((emp) => (emp.id === employeeId ? { ...emp, role: newRole } : emp))
+            prev.map((emp) => (emp.emp_id === employeeId ? { ...emp, role: newRole } : emp))
         );
 
         setModifiedAssignments((prev) => {
             const newSet = new Set(prev);
-            const emp = assignedEmployees.find((e) => e.id === employeeId);
+            const emp = assignedEmployees.find((e) => e.emp_id === employeeId);
             newSet.add(JSON.stringify({ ...emp, role: newRole })); // Update modifiedAssignments
             return newSet;
         });
@@ -183,12 +193,12 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
 
     const handleDeadlineChange = (employeeId, newDeadline) => {
         setAssignedEmployees((prev) =>
-            prev.map((emp) => (emp.id === employeeId ? { ...emp, deadline: newDeadline } : emp))
+            prev.map((emp) => (emp.emp_id === employeeId ? { ...emp, deadline: newDeadline } : emp))
         );
 
         setModifiedAssignments((prev) => {
             const newSet = new Set(prev);
-            const emp = assignedEmployees.find((e) => e.id === employeeId);
+            const emp = assignedEmployees.find((e) => e.emp_id === employeeId);
             newSet.add(JSON.stringify({ ...emp, deadline: newDeadline })); // Update modifiedAssignments
             return newSet;
         });
@@ -246,7 +256,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                             <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
                                 <ListItemButton sx={{ padding: 0, paddingLeft: 2 }}>
                                     <ListItemText primary={emp.name} secondary={emp.emp_code} />
-                                    {assignedEmployees.some((e) => e.id === emp.id) ? (
+                                    {assignedEmployees.some((e) => e.emp_id === emp.id) ? (
                                         <IconButton onClick={() => handleRemoveEmployee(emp.id)}><RemoveCircleOutline color="error" /></IconButton>
                                     ) : (
                                         <IconButton onClick={() => handleAssignEmployee(emp)}><AddCircleOutline color="primary" /></IconButton>
@@ -263,7 +273,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                     {assignedEmployees.length > 0 ? (
                         <List disablePadding>
                             {assignedEmployees.map((emp, index) => (
-                                <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
+                                <ListItem key={emp.emp_id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
                                     <ListItemButton sx={{ paddingRight: 0 }}>
                                         <ListItemText primary={emp.name} secondary={emp.emp_code} />
                                         <Box display={'flex'} flexWrap={'wrap'} justifyContent={'end'}>
@@ -274,7 +284,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                                                     value={emp.role || ""}
                                                     onChange={(e) => {
                                                         const newRole = e.target.value;
-                                                        handleRoleChange(emp.id, newRole);
+                                                        handleRoleChange(emp.emp_id, newRole);
                                                     }}
                                                 >
                                                     {roles.map((role) => (
@@ -292,14 +302,14 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                                                 value={emp.deadline || ""}
                                                 onChange={(e) => {
                                                     const newDeadline = e.target.value;
-                                                    handleDeadlineChange(emp.id, newDeadline);
+                                                    handleDeadlineChange(emp.emp_id, newDeadline);
                                                 }}
                                                 InputLabelProps={{ shrink: true }}
                                                 sx={{ width: 150, marginRight: 1 }}
                                             />
                                         </Box>
 
-                                        <IconButton onClick={() => handleRemoveEmployee(emp.id)}>
+                                        <IconButton onClick={() => handleRemoveEmployee(emp.emp_id)}>
                                             <RemoveCircleOutline color="error" />
                                         </IconButton>
                                     </ListItemButton>
