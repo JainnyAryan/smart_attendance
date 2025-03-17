@@ -70,18 +70,17 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
 
     const handleSave = async () => {
         try {
-            console.log(modifiedAssignments);
-            for (const emp of modifiedAssignments) {
-                const isAssigned = assignedEmployees.some((e) => e.employee_id === emp.id);
-                if (isAssigned) {
-                    // ✅ Add employee to project with role, deadline, and allocated_on date
-                    console.log({
-                        project_id: updatedProject.id,
-                        employee_id: emp.id,
-                        role: emp.role,
-                        deadline: emp.deadline,
-                        allocated_on: emp.allocated_on
-                    },)
+            for (const empStr of modifiedAssignments) {
+                const emp = JSON.parse(empStr); // Convert from string to object
+
+                if (emp.remove) {
+                    // ❌ Remove employee from project
+                    await api.delete(
+                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${updatedProject.id}/${emp.id}`,
+                        { headers: { Authorization: `Bearer ${authToken}` } }
+                    );
+                } else {
+                    // ✅ Add employee to project
                     await api.post(
                         `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/`,
                         {
@@ -92,12 +91,6 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                             allocated_on: emp.allocated_on
                         },
                         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
-                    );
-                } else {
-                    // ❌ Remove employee from project
-                    await api.delete(
-                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${updatedProject.id}/${emp.id}`,
-                        { headers: { Authorization: `Bearer ${authToken}` } }
                     );
                 }
             }
@@ -149,30 +142,55 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
     };
 
     const handleAssignEmployee = (employee) => {
-        setAssignedEmployees((prev) => {
-            if (!prev.some((e) => e.id === employee.id)) {
-                return [
-                    ...prev,
-                    {
-                        ...employee,
-                        role: roles.length ? roles[0] : "",  // Default to first role
-                        deadline: updatedProject.end_date,  // Default to project end date
-                        allocated_on: new Date().toISOString().split('T')[0] // Today's date
-                    }
-                ];
-            }
-            return prev;
-        });
+        const assignedEmployee = {
+            ...employee,
+            role: roles.length ? roles[0] : "",  // Default role
+            deadline: updatedProject.end_date,  // Default to project end date
+            allocated_on: new Date().toISOString().split('T')[0] // Today's date
+        };
 
-        setModifiedAssignments((prev) => new Set(prev).add(employee));
+        setAssignedEmployees((prev) => [...prev, assignedEmployee]);
+
+        setModifiedAssignments((prev) => {
+            const newSet = new Set(prev);
+            newSet.add(JSON.stringify(assignedEmployee)); // Store as JSON string to track updates
+            return newSet;
+        });
     };
 
     const handleRemoveEmployee = (employeeId) => {
         setAssignedEmployees((prev) => prev.filter((emp) => emp.id !== employeeId));
+
         setModifiedAssignments((prev) => {
-            const updatedSet = new Set(prev);
-            updatedSet.add(employeeId);
-            return updatedSet;
+            const newSet = new Set(prev);
+            newSet.add(JSON.stringify({ id: employeeId, remove: true })); // Mark for removal
+            return newSet;
+        });
+    };
+
+    const handleRoleChange = (employeeId, newRole) => {
+        setAssignedEmployees((prev) =>
+            prev.map((emp) => (emp.id === employeeId ? { ...emp, role: newRole } : emp))
+        );
+
+        setModifiedAssignments((prev) => {
+            const newSet = new Set(prev);
+            const emp = assignedEmployees.find((e) => e.id === employeeId);
+            newSet.add(JSON.stringify({ ...emp, role: newRole })); // Update modifiedAssignments
+            return newSet;
+        });
+    };
+
+    const handleDeadlineChange = (employeeId, newDeadline) => {
+        setAssignedEmployees((prev) =>
+            prev.map((emp) => (emp.id === employeeId ? { ...emp, deadline: newDeadline } : emp))
+        );
+
+        setModifiedAssignments((prev) => {
+            const newSet = new Set(prev);
+            const emp = assignedEmployees.find((e) => e.id === employeeId);
+            newSet.add(JSON.stringify({ ...emp, deadline: newDeadline })); // Update modifiedAssignments
+            return newSet;
         });
     };
 
@@ -256,9 +274,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                                                     value={emp.role || ""}
                                                     onChange={(e) => {
                                                         const newRole = e.target.value;
-                                                        setAssignedEmployees((prev) =>
-                                                            prev.map((e) => (e.id === emp.id ? { ...e, role: newRole } : e))
-                                                        );
+                                                        handleRoleChange(emp.id, newRole);
                                                     }}
                                                 >
                                                     {roles.map((role) => (
@@ -276,9 +292,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                                                 value={emp.deadline || ""}
                                                 onChange={(e) => {
                                                     const newDeadline = e.target.value;
-                                                    setAssignedEmployees((prev) =>
-                                                        prev.map((e) => (e.id === emp.id ? { ...e, deadline: newDeadline } : e))
-                                                    );
+                                                    handleDeadlineChange(emp.id, newDeadline);
                                                 }}
                                                 InputLabelProps={{ shrink: true }}
                                                 sx={{ width: 150, marginRight: 1 }}
