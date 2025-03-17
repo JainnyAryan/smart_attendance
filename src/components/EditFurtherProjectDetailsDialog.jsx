@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
     Dialog, DialogActions, DialogContent, DialogTitle, Button, Select, MenuItem,
-    FormControl, InputLabel, TextField, Chip, Box, Typography
+    FormControl, InputLabel, TextField, Chip, Box, Typography,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import { toast } from "react-toastify";
@@ -106,7 +110,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
         setSearchTerm(term);
         setFilteredEmployees(
             employees.filter(emp =>
-                emp.code.toLowerCase().includes(term) || emp.name.toLowerCase().includes(term)
+                emp.emp_code.toLowerCase().includes(term) || emp.name.toLowerCase().includes(term)
             )
         );
     };
@@ -181,6 +185,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                 </FormControl>
 
                 <Box mt={3}>
+                    <Typography variant="h6">Required Skills</Typography>
                     {updatedProject.required_skills.map(skill => (
                         <Chip key={skill} sx={{ margin: 0.5 }} label={skill} onDelete={() => handleRemoveSkill(skill)} />
                     ))}
@@ -194,13 +199,19 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                     />
                 </Box>
 
-                <Box mt={2}>
+                <Box mt={4}>
+                    <Typography variant="h6">Project Allocation</Typography>
+                    <Box mt={1.5} />
                     <TextField fullWidth label="Search Employee" onChange={handleSearch} InputProps={{ startAdornment: <Search /> }} />
-                    {filteredEmployees.map(emp => (
-                        <Chip key={emp.id} label={`${emp.name} (${emp.emp_code})`}
-                            onClick={() => handleAssignEmployee(emp)}
-                        />
-                    ))}
+                    <List disablePadding>
+                        {filteredEmployees.map(emp => (
+                            <ListItem sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
+                                <ListItemButton sx={{ padding: 0, paddingLeft: 2 }}>
+                                    <ListItemText primary={emp.name} secondary={emp.emp_code} />
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
                 </Box>
 
                 <Box mt={2}>
