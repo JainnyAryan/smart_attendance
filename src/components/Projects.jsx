@@ -10,13 +10,35 @@ import { Edit, ExpandMore, AddCircleOutline, Close } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import api from '../api/api';
+import EditFurtherProjectDetailsDialog from './EditFurtherProjectDetailsDialog';
 
 const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) => {
     const [projects, setProjects] = useState([]);
     const { authToken } = useAuth();
-    const [selectedProject, setSelectedProject] = useState(null);
-    const [skillInput, setSkillInput] = useState('');
     const [openDialog, setOpenDialog] = useState(false);
+
+    const [selectedProject, setSelectedProject] = useState(null);
+
+    const [skillInput, setSkillInput] = useState('');
+    const [priority, setPriority] = useState('');
+    const [status, setStatus] = useState('');
+    const statusOptions = {
+        PLANNED: "Planned",
+        IN_PROGRESS: "In Progress",
+        COMPLETED: "Completed",
+        ON_HOLD: "On Hold",
+    }
+    const priorityOptions = {
+        LOW: "Low",
+        MEDIUM: "Medium",
+        HIGH: "High",
+    }
+
+    const [assignDialog, setAssignDialog] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filters, setFilters] = useState({ shift: '', designation: '', department: '' });
+    const handleSearchChange = (e) => setSearchQuery(e.target.value);
+    const handleFilterChange = (field, value) => setFilters({ ...filters, [field]: value });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -33,10 +55,20 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
         fetchData();
     }, [refreshListFlag]);
 
-    const handleOpenDialog = (project) => {
+    const handleOpenEditDialog = (project) => {
         setSelectedProject(project);
+        setSkillInput('');
+        setPriority(priorityOptions[project.priority.toUpperCase()]);
+        setStatus(priorityOptions[project.status.toUpperCase()]);
         setOpenDialog(true);
     };
+
+    const handleOpenAssignDialog = (project) => {
+        setSelectedProject(project);
+        fetchEmployees(); // Fetch employees if needed
+        setAssignDialog(true);
+    };
+
 
     const handleCloseDialog = () => {
         setSelectedProject(null);
@@ -61,11 +93,15 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
         }));
     };
 
-    const handleSaveSkills = async () => {
+    const handleSaveSkillsStatusPriority = async () => {
         try {
             await api.put(
-                `${import.meta.env.VITE_BASE_URL}/admin/projects/required-skills/${selectedProject.id}`,
-                { required_skills: selectedProject.required_skills },  // ✅ Sending as JSON object
+                `${import.meta.env.VITE_BASE_URL}/admin/projects/${selectedProject.id}`,
+                {
+                    required_skills: selectedProject.required_skills,
+                    status: status,
+                    priority: priority,
+                },  // ✅ Sending as JSON object
                 { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
             );
             toast.success("Skills updated successfully.");
@@ -100,7 +136,7 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
                                 <TableRow>
                                     <TableCell>{project.code}</TableCell>
                                     <TableCell>{project.name}</TableCell>
-                                    <TableCell>{project.priority}</TableCell>
+                                    <TableCell>{project.priority.toUpperCase()}</TableCell>
                                     <TableCell>{project.status}</TableCell>
                                     <TableCell>{new Date(project.start_date).toLocaleDateString()}</TableCell>
                                     <TableCell>{new Date(project.end_date).toLocaleDateString()}</TableCell>
@@ -125,7 +161,7 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
                                                 <Typography><b>Max Team Size:</b> {project.max_team_size}</Typography>
                                                 <Typography><b>Min Experience (years):</b> {project.min_experience}</Typography>
 
-                                                {/* Skills Display */}
+                                                {/* Skills */}
                                                 <Box mt={2}>
                                                     <Typography><b>Required Skills:</b></Typography>
                                                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
@@ -139,16 +175,20 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
                                                     </Box>
                                                 </Box>
 
-                                                {/* Add/Edit Skills Button */}
-                                                <Button
-                                                    variant="contained"
-                                                    size="small"
-                                                    startIcon={<Edit />}
-                                                    sx={{ mt: 2 }}
-                                                    onClick={() => handleOpenDialog(project)}
-                                                >
-                                                    Add/Edit Skills
-                                                </Button>
+                                                {/* Buttons for Editing & Assigning Employees */}
+                                                <Box sx={{
+                                                    mt: 2, display: "flex", flexWrap: "wrap",
+                                                    gap: 2
+                                                }}>
+                                                    <Button
+                                                        variant="contained"
+                                                        size="small"
+                                                        startIcon={<Edit />}
+                                                        onClick={() => setSelectedProject(project)}
+                                                    >
+                                                        Edit Project Further
+                                                    </Button>
+                                                </Box>
                                             </AccordionDetails>
                                         </Accordion>
                                     </TableCell>
@@ -160,38 +200,14 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
             </TableContainer>
 
             {/* Add/Edit Skills Dialog */}
-            <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth>
-                <DialogTitle>Edit Required Skills</DialogTitle>
-                <DialogContent>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
-                        {selectedProject?.required_skills.map((skill, index) => (
-                            <Chip
-                                key={index}
-                                label={skill}
-                                variant="outlined"
-                                onDelete={() => handleRemoveSkill(skill)}
-                            />
-                        ))}
-                    </Box>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                        <TextField
-                            label="Add Skill"
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            value={skillInput}
-                            onChange={(e) => setSkillInput(e.target.value)}
-                        />
-                        <IconButton color="primary" onClick={handleAddSkill}>
-                            <AddCircleOutline />
-                        </IconButton>
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog} color="secondary">Cancel</Button>
-                    <Button onClick={handleSaveSkills} color="primary" variant="contained">Save</Button>
-                </DialogActions>
-            </Dialog>
+            {selectedProject && (
+                <EditFurtherProjectDetailsDialog
+                    open={!!selectedProject}
+                    onClose={() => setSelectedProject(null)}
+                    project={selectedProject}
+                    triggerRefresh={triggerRefreshListFlag}
+                />
+            )}
         </Container>
     );
 };
