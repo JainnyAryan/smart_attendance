@@ -60,7 +60,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
             const response = await api.get(`${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${project.id}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
             });
-            setAssignedEmployees(response.data.assigned_employees);
+            setAssignedEmployees(response.data);
         } catch (error) {
             console.error("Error fetching assigned employees:", error);
         }
@@ -209,18 +209,17 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                 <Box mt={2}>
                     <Typography variant="body1">Assigned Employees</Typography>
                     <Box mt={0.5} />
-                    {
-                        assignedEmployees.length > 0 ? <List disablePadding>
-                            {assignedEmployees.map(emp => (
-                                <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
-                                    <ListItemButton sx={{ padding: 0, paddingLeft: 2 }}>
-                                        <ListItemText primary={emp.name} secondary={emp.emp_code} />
-                                        <IconButton onClick={() => handleRemoveEmployee(emp.id)}><RemoveCircleOutline color="error" /></IconButton>
-                                    </ListItemButton>
-                                </ListItem>
-                            ))}
-                        </List>
-                            : <Typography variant="body2" sx={{ color: 'gray' }}> No employees assigned to this project yet. </Typography>
+                    {assignedEmployees.length > 0 ? <List disablePadding>
+                        {assignedEmployees.map(emp => (
+                            <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
+                                <ListItemButton sx={{ padding: 0, paddingLeft: 2 }}>
+                                    <ListItemText primary={emp.name} secondary={emp.emp_code} />
+                                    <IconButton onClick={() => handleRemoveEmployee(emp.id)}><RemoveCircleOutline color="error" /></IconButton>
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                        : <Typography variant="body2" sx={{ color: 'gray' }}> No employees assigned to this project yet. </Typography>
                     }
                 </Box>
             </DialogContent>
