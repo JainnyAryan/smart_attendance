@@ -31,6 +31,7 @@ import EmployeeAnalyticsChart from "./EmployeeAnalyticsChart";
 import { useAuth } from "../context/AuthContext";
 import AttendanceCalendar from "./AttendanceCalendar";
 import LogList from "./LogList";
+import api from "../api/api";
 
 dayjs.extend(isoWeek);
 
@@ -84,7 +85,7 @@ const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
     const fetchAnalytics = async (empId) => {
         setLoading(true);
         try {
-            const { data } = await axios.get(
+            const { data } = await api.get(
                 `${import.meta.env.VITE_BASE_URL}/admin/analytics/${empId}?start_date=${startDate}&end_date=${endDate}`,
                 {
                     headers: { Authorization: `Bearer ${authToken}` },

@@ -1,10 +1,11 @@
 import axios from 'axios';
+import api from '../api/api';
 
 
 // Log attendance in
 export const logAttendanceIn = async (empCode, startTime) => {
   try {
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/attendance/login`, {
+    const response = await api.post(`${import.meta.env.VITE_BASE_URL}/attendance/login`, {
       emp_code: empCode,
       start_time: startTime,
     }, {
@@ -19,7 +20,7 @@ export const logAttendanceIn = async (empCode, startTime) => {
 // Log attendance out
 export const logAttendanceOut = async (empCode, endTime) => {
   try {
-    const response = await axios.post(`${API_URL}/attendance/logout`, {
+    const response = await api.post(`${API_URL}/attendance/logout`, {
       emp_code: empCode,
       end_time: endTime,
     }, {

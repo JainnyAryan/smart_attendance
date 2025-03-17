@@ -9,6 +9,7 @@ import {
 import { Edit, ExpandMore, AddCircleOutline, Close } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import api from '../api/api';
 
 const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) => {
     const [projects, setProjects] = useState([]);
@@ -20,7 +21,7 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const projectsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/projects/`, {
+                const projectsRes = await api.get(`${import.meta.env.VITE_BASE_URL}/admin/projects/`, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 setProjects(projectsRes.data);
@@ -62,7 +63,7 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
 
     const handleSaveSkills = async () => {
         try {
-            await axios.put(
+            await api.put(
                 `${import.meta.env.VITE_BASE_URL}/admin/projects/required-skills/${selectedProject.id}`,
                 { required_skills: selectedProject.required_skills },  // ✅ Sending as JSON object
                 { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }

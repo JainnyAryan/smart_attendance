@@ -12,11 +12,13 @@ import {
     MenuItem,
     InputAdornment,
     Typography,
-    CircularProgress
+    CircularProgress,
+    Tooltip
 } from '@mui/material';
-import { CalendarMonth, Code, Description, Group, Label, Star } from '@mui/icons-material';
+import { CalendarMonth, Code, Delete, Description, Group, Label, Star } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/api';
 
 const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, projectData, onCloseEditMode }) => {
     const [formData, setFormData] = useState({
@@ -30,6 +32,7 @@ const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, pro
     });
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [errors, setErrors] = useState({});
     const { authToken } = useAuth();
 
@@ -110,12 +113,12 @@ const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, pro
         setIsLoading(true);
         try {
             if (isEditMode) {
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/projects/${projectData.id}`, formData, {
+                await api.put(`${import.meta.env.VITE_BASE_URL}/admin/projects/${projectData.id}`, formData, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 toast.success(`Updated project: ${formData.name}`);
             } else {
-                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/projects/`, formData, {
+                await api.post(`${import.meta.env.VITE_BASE_URL}/admin/projects/`, formData, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 toast.success(`Added new project: ${formData.name}`);
@@ -127,6 +130,24 @@ const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, pro
             console.error('Error submitting project:', error);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        setIsLoading(true);
+        try {
+            await api.delete(`${import.meta.env.VITE_BASE_URL}/admin/projects/${id}`, {
+                headers: { Authorization: `Bearer ${authToken}` },
+            });
+            toast.success("Project deleted successfully!");
+            triggerRefreshListFlag();
+        } catch (error) {
+            toast.error("Error deleting project.");
+            console.error('Error deleting project:', error);
+        }
+        finally {
+            setIsLoading(false);
+            setIsOpen(false);
         }
     };
 
@@ -286,6 +307,37 @@ const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, pro
                         />
                     </Container>
                 </form>
+                {isEditMode &&
+                    <>
+                        <Box height={15} />
+                        <Tooltip arrow open={isDeleteDialogOpen}
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        bgcolor: 'white',
+                                        color: 'black',
+                                        border: "1px solid grey",
+                                    },
+                                },
+                            }}
+                            title={
+                                <Box>
+                                    <Typography>Are you sure to delete thr project?<br />This cannot be undone.</Typography>
+                                    <br />
+                                    <Box display={'flex'} flexDirection={'row'} justifyContent={'end'}>
+                                        <Button onClick={() => { setIsDeleteDialogOpen(false); }}>No</Button>
+                                        <Button variant='contained' color='error' onClick={() => { handleDelete(projectData.id); }}>Delete</Button>
+                                    </Box>
+                                </Box>
+                            } >
+                            <Button color="error" variant='contained' fullWidth onClick={() => { setIsDeleteDialogOpen(true); }} disabled={isLoading}>
+                                <Delete />
+                                <Box width={12} />
+                                Delete Shift
+                            </Button>
+                        </Tooltip>
+                    </>
+                }
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} disabled={isLoading}>Cancel</Button>

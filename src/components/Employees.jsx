@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { IconEye, IconEyeCode, IconEyeEdit, IconEyeFilled } from '@tabler/icons-react';
+import api from '../api/api';
 
 const Employees = ({ refreshListFlag, openEditDialog }) => {
     const [employees, setEmployees] = useState([]);
@@ -15,7 +16,7 @@ const Employees = ({ refreshListFlag, openEditDialog }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const employeesRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/`, {
+                const employeesRes = await api.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/`, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 setEmployees(employeesRes.data);

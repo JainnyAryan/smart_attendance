@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/api";
 
 dayjs.extend(isoWeek);
 
@@ -55,7 +56,7 @@ const AttendanceCalendar = ({ empId }) => {
             const startDate = currentMonth.startOf("month").format("YYYY-MM-DD");
             const endDate = currentMonth.endOf("month").format("YYYY-MM-DD");
 
-            const response = await axios.get(
+            const response = await api.get(
                 `${import.meta.env.VITE_BASE_URL}/admin/attendance/calendar/`,
                 {
                     params: {

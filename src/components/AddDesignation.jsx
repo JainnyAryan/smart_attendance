@@ -5,6 +5,7 @@ import { BadgeOutlined, Delete, Domain, Numbers, Person } from '@mui/icons-mater
 import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/api';
 
 const AddDesignation = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, designationData, onCloseEditMode, setDesignations }) => {
     const [formData, setFormData] = useState({
@@ -62,12 +63,12 @@ const AddDesignation = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode,
         setIsLoading(true);
         try {
             if (isEditMode) {
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/designations/${designationData.id}`, formData, {
+                await api.put(`${import.meta.env.VITE_BASE_URL}/admin/designations/${designationData.id}`, formData, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 toast.success(`Updated designation: ${formData.name}`);
             } else {
-                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/designations/`, formData, {
+                await api.post(`${import.meta.env.VITE_BASE_URL}/admin/designations/`, formData, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 toast.success(`Added new designation: ${formData.name}`);
@@ -85,7 +86,7 @@ const AddDesignation = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode,
     const handleDelete = async (id) => {
         setIsLoading(true);
         try {
-            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/designations/${id}`, {
+            await api.delete(`${import.meta.env.VITE_BASE_URL}/admin/designations/${id}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
             });
             toast.success("Designation deleted successfully!");

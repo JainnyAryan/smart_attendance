@@ -20,6 +20,7 @@ import {
     CircularProgress,
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/api";
 
 const LogList = ({ empId, logType }) => {
     const [logs, setLogs] = useState([]);
@@ -56,7 +57,7 @@ const LogList = ({ empId, logType }) => {
         setLoading(true);
         try {
             const url = `${import.meta.env.VITE_BASE_URL}/admin/${logType}-logs/employee/${empId}/date-range`;
-            const response = await axios.get(url, {
+            const response = await api.get(url, {
                 params: { start_date: startDate, end_date: endDate },
                 headers: { Authorization: `Bearer ${authToken}` },
             });

@@ -5,6 +5,7 @@ import { BadgeOutlined, Delete, Domain, Email, Numbers, Person } from '@mui/icon
 import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/api';
 
 const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, employeeData, onCloseEditMode, setEmployees }) => {
     const [formData, setFormData] = useState({
@@ -30,13 +31,13 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
             setIsLoading(true);
             try {
                 const [shiftsRes, departmentsRes, designationsRes] = await Promise.all([
-                    axios.get(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, {
+                    api.get(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, {
                         headers: { Authorization: `Bearer ${authToken}` },
                     }),
-                    axios.get(`${import.meta.env.VITE_BASE_URL}/admin/departments/`, {
+                    api.get(`${import.meta.env.VITE_BASE_URL}/admin/departments/`, {
                         headers: { Authorization: `Bearer ${authToken}` },
                     }),
-                    axios.get(`${import.meta.env.VITE_BASE_URL}/admin/designations/`, {
+                    api.get(`${import.meta.env.VITE_BASE_URL}/admin/designations/`, {
                         headers: { Authorization: `Bearer ${authToken}` },
                     })
                 ]);
@@ -89,7 +90,7 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
             // Set a new timeout to delay the API call
             const newTimeout = setTimeout(() => {
                 setIsFetchingEmail(true);
-                axios.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/suggest-email-emp-code/${formData.name}`, {
+                api.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/suggest-email-emp-code/${formData.name}`, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 })
                     .then(response => {
@@ -153,12 +154,12 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
         setIsLoading(true);
         try {
             if (isEditMode) {
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/employees/${employeeData.id}`, formData, {
+                await api.put(`${import.meta.env.VITE_BASE_URL}/admin/employees/${employeeData.id}`, formData, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 toast.success(`Updated employee: ${formData.name}`);
             } else {
-                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/employees/`, formData, {
+                await api.post(`${import.meta.env.VITE_BASE_URL}/admin/employees/`, formData, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 toast.success(`Added new employee: ${formData.name}`);
@@ -177,7 +178,7 @@ const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, em
     const handleDelete = async (empId) => {
         setIsLoading(true);
         try {
-            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/employees/${empId}`, {
+            await api.delete(`${import.meta.env.VITE_BASE_URL}/admin/employees/${empId}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
             });
             toast.success("Employee deleted successfully!");

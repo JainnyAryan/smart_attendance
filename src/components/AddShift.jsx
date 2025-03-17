@@ -5,6 +5,7 @@ import { IconClock } from '@tabler/icons-react';
 import { AccessTime, Timer, TimerOff, WatchLater, CheckCircleOutline, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/api';
 
 const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shiftData, onCloseEditMode, setShifts }) => {
     const [formData, setFormData] = useState({
@@ -114,12 +115,12 @@ const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shift
         try {
             console.log(formattedData);
             if (isEditMode) {
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${shiftData.id}`, formattedData, {
+                await api.put(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${shiftData.id}`, formattedData, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 toast.success(`Updated shift: ${formattedData.name}`);
             } else {
-                await axios.post(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, formattedData, {
+                await api.post(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, formattedData, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 toast.success(`Added a new shift: ${formattedData.name}`);
@@ -150,7 +151,7 @@ const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shift
     const handleDelete = async (id) => {
         setIsLoading(true);
         try {
-            await axios.delete(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${id}`, {
+            await api.delete(`${import.meta.env.VITE_BASE_URL}/admin/shifts/${id}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
             });
             toast.success("Shift deleted successfully!");

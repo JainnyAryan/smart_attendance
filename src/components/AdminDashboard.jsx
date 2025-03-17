@@ -6,6 +6,7 @@ import { BadgeOutlined, Domain, People } from '@mui/icons-material';
 import { IconClock } from '@tabler/icons-react';
 import { AnimatedCounter } from 'react-animated-counter';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/api';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -20,7 +21,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/admin/stats/`, {
+        const statsRes = await api.get(`${import.meta.env.VITE_BASE_URL}/admin/stats/`, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         setStats(statsRes.data);

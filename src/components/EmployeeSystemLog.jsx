@@ -13,6 +13,7 @@ import {
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import api from '../api/api';
 
 const EmployeeSystemLog = () => {
     const [logStatus, setLogStatus] = useState(null);
@@ -26,7 +27,7 @@ const EmployeeSystemLog = () => {
         const fetchLogStatus = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(
+                const response = await api.get(
                     `${import.meta.env.VITE_BASE_URL}/employee/system-log/employee/latest/${empId}`
                 );
                 const logs = response.data;
@@ -52,14 +53,14 @@ const EmployeeSystemLog = () => {
     }, [logStatus]);
 
     const fetchClientIp = async () => {
-        const res = await axios.get('https://api.ipify.org?format=json');
+        const res = await api.get('https://api.ipify.org?format=json');
         return res.data.ip;
     };
 
     const handleLogIn = async () => {
         try {
             setLoading(true);
-            await axios.post(`${import.meta.env.VITE_BASE_URL}/employee/system-log/in/`, {
+            await api.post(`${import.meta.env.VITE_BASE_URL}/employee/system-log/in/`, {
                 emp_id: empId,
                 ip_address: await fetchClientIp(),
                 start_time: new Date().toISOString()
@@ -76,7 +77,7 @@ const EmployeeSystemLog = () => {
     const handleLogOut = async () => {
         try {
             setLoading(true);
-            await axios.post(`${import.meta.env.VITE_BASE_URL}/employee/system-log/out`, {
+            await api.post(`${import.meta.env.VITE_BASE_URL}/employee/system-log/out`, {
                 emp_id: empId,
                 ip_address: await fetchClientIp(),
                 end_time: new Date().toISOString()
