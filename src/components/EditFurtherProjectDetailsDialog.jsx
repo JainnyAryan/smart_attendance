@@ -39,7 +39,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
             });
             setStatuses(response.data.statuses);
             setPriorities(response.data.priorities);
-            setPriorities(response.data.roles);
+            setRoles(response.data.roles);
         } catch (error) {
             console.error("Error fetching project metadata:", error);
         }
@@ -70,23 +70,33 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
 
     const handleSave = async () => {
         try {
-            for (const empId of modifiedAssignments) {
-                const isAssigned = assignedEmployees.some((emp) => emp.id === empId);
+            console.log(modifiedAssignments);
+            for (const emp of modifiedAssignments) {
+                const isAssigned = assignedEmployees.some((e) => e.employee_id === emp.id);
                 if (isAssigned) {
-                    // ✅ Add employee to project
+                    // ✅ Add employee to project with role, deadline, and allocated_on date
+                    console.log({
+                        project_id: updatedProject.id,
+                        employee_id: emp.id,
+                        role: emp.role,
+                        deadline: emp.deadline,
+                        allocated_on: emp.allocated_on
+                    },)
                     await api.post(
                         `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/`,
                         {
                             project_id: updatedProject.id,
-                            employee_id: empId,
-                            role: "MANAGER",
+                            employee_id: emp.id,
+                            role: emp.role,
+                            deadline: emp.deadline,
+                            allocated_on: emp.allocated_on
                         },
                         { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
                     );
                 } else {
                     // ❌ Remove employee from project
                     await api.delete(
-                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${updatedProject.id}/${empId}`,
+                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${updatedProject.id}/${emp.id}`,
                         { headers: { Authorization: `Bearer ${authToken}` } }
                     );
                 }
@@ -141,12 +151,20 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
     const handleAssignEmployee = (employee) => {
         setAssignedEmployees((prev) => {
             if (!prev.some((e) => e.id === employee.id)) {
-                return [...prev, employee];
+                return [
+                    ...prev,
+                    {
+                        ...employee,
+                        role: roles.length ? roles[0] : "",  // Default to first role
+                        deadline: updatedProject.end_date,  // Default to project end date
+                        allocated_on: new Date().toISOString().split('T')[0] // Today's date
+                    }
+                ];
             }
             return prev;
         });
 
-        setModifiedAssignments((prev) => new Set(prev).add(employee.id)); // Track the addition
+        setModifiedAssignments((prev) => new Set(prev).add(employee));
     };
 
     const handleRemoveEmployee = (employeeId) => {
@@ -224,19 +242,63 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                 <Box mt={2}>
                     <Typography variant="body1">Assigned Employees</Typography>
                     <Box mt={0.5} />
-                    {assignedEmployees.length > 0 ? <List disablePadding>
-                        {assignedEmployees.map(emp => (
-                            <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
-                                <ListItemButton sx={{ padding: 0, paddingLeft: 2 }}>
-                                    <ListItemText primary={emp.name} secondary={emp.emp_code} />
-                                    <IconButton onClick={() => handleRemoveEmployee(emp.id)}><RemoveCircleOutline color="error" /></IconButton>
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
-                        : <Typography variant="body2" sx={{ color: 'gray' }}> No employees assigned to this project yet. </Typography>
-                    }
+                    {assignedEmployees.length > 0 ? (
+                        <List disablePadding>
+                            {assignedEmployees.map((emp, index) => (
+                                <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
+                                    <ListItemButton sx={{ paddingRight: 0 }}>
+                                        <ListItemText primary={emp.name} secondary={emp.emp_code} />
+                                        <Box display={'flex'} flexWrap={'wrap'} justifyContent={'end'}>
+                                            <FormControl sx={{ minWidth: 120, marginRight: 1 }}>
+                                                <InputLabel>Role</InputLabel>
+                                                <Select
+                                                    variant="outlined"
+                                                    value={emp.role || ""}
+                                                    onChange={(e) => {
+                                                        const newRole = e.target.value;
+                                                        setAssignedEmployees((prev) =>
+                                                            prev.map((e) => (e.id === emp.id ? { ...e, role: newRole } : e))
+                                                        );
+                                                    }}
+                                                >
+                                                    {roles.map((role) => (
+                                                        <MenuItem key={role} value={role}>
+                                                            {role}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+
+                                            <TextField
+                                                label="Deadline"
+                                                type="date"
+                                                variant="filled"
+                                                value={emp.deadline || ""}
+                                                onChange={(e) => {
+                                                    const newDeadline = e.target.value;
+                                                    setAssignedEmployees((prev) =>
+                                                        prev.map((e) => (e.id === emp.id ? { ...e, deadline: newDeadline } : e))
+                                                    );
+                                                }}
+                                                InputLabelProps={{ shrink: true }}
+                                                sx={{ width: 150, marginRight: 1 }}
+                                            />
+                                        </Box>
+
+                                        <IconButton onClick={() => handleRemoveEmployee(emp.id)}>
+                                            <RemoveCircleOutline color="error" />
+                                        </IconButton>
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </List>
+                    ) : (
+                        <Typography variant="body2" sx={{ color: "gray" }}>
+                            No employees assigned to this project yet.
+                        </Typography>
+                    )}
                 </Box>
+
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} color="secondary">Cancel</Button>
