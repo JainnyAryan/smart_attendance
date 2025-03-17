@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
     Dialog, DialogActions, DialogContent, DialogTitle, Button, Select, MenuItem,
-    FormControl, InputLabel, TextField, Chip, Box, Typography,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemText
+    FormControl, InputLabel, TextField, Chip, Box, Typography, List, ListItem,
+    ListItemButton, ListItemText, IconButton,
+    Divider
 } from "@mui/material";
-import { Search } from "@mui/icons-material";
+import { Search, AddCircleOutline, RemoveCircleOutline } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
@@ -21,25 +19,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
     const [statuses, setStatuses] = useState([]);
     const [priorities, setPriorities] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-
-    const statusOptions = [
-        {
-            label: "Planned",
-            value: "PLANNED"
-        },
-        {
-            label: "In Progress",
-            value: "IN_PROGRESS"
-        },
-        {
-            label: "Completed",
-            value: "COMPLETED"
-        },
-        {
-            label: "On Hold",
-            value: "ON_HOLD"
-        }
-    ];
+    const [modifiedAssignments, setModifiedAssignments] = useState(new Set());
 
     useEffect(() => {
         if (open) {
@@ -47,6 +27,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
             fetchMetadata();
             fetchEmployees();
             fetchAssignedEmployees();
+            setModifiedAssignments(new Set());
         }
     }, [open, project]);
 
@@ -87,6 +68,23 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
 
     const handleSave = async () => {
         try {
+            for (const empId of modifiedAssignments) {
+                if (assignedEmployees.some(emp => emp.id === empId)) {
+                    // Add employee
+                    await api.post(`${import.meta.env.VITE_BASE_URL}/admin/project-allocations/`, {
+                        project_id: updatedProject.id,
+                        employee_id: empId,
+                    }, {
+                        headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
+                    });
+                } else {
+                    // Remove employee
+                    await api.delete(`${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${updatedProject.id}/${empId}`, {
+                        headers: { Authorization: `Bearer ${authToken}` },
+                    });
+                }
+            }
+
             await api.put(
                 `${import.meta.env.VITE_BASE_URL}/admin/projects/${updatedProject.id}`,
                 {
@@ -96,6 +94,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                 },
                 { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
             );
+
             toast.success("Project updated successfully.");
             triggerRefresh();
             onClose();
@@ -115,31 +114,6 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
         );
     };
 
-    const handleAssignEmployee = async (employee) => {
-        try {
-            await api.post(`${import.meta.env.VITE_BASE_URL}/admin/project-allocations/`, {
-                project_id: updatedProject.id,
-                employee_id: employee.id,
-            }, {
-                headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
-            });
-            setAssignedEmployees((prev) => [...prev, employee]);
-        } catch (error) {
-            console.error("Error assigning employee:", error);
-        }
-    };
-
-    const handleRemoveEmployee = async (employeeId) => {
-        try {
-            await api.delete(`${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${updatedProject.id}/${employeeId}`, {
-                headers: { Authorization: `Bearer ${authToken}` },
-            });
-            setAssignedEmployees((prev) => prev.filter((emp) => emp.id !== employeeId));
-        } catch (error) {
-            console.error("Error removing employee:", error);
-        }
-    };
-
     const handleAddSkill = (skill) => {
         if (skill.trim() && !updatedProject.required_skills.includes(skill.trim())) {
             setUpdatedProject((prev) => ({
@@ -154,6 +128,19 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
             ...prev,
             required_skills: prev.required_skills.filter((s) => s !== skill),
         }));
+    };
+
+    const handleAssignEmployee = (employee) => {
+        setAssignedEmployees((prev) => {
+            if (!prev.some((e) => e.id === employee.id)) {
+                return [...prev, employee];
+            }
+            return prev;
+        });
+    };
+
+    const handleRemoveEmployee = (employeeId) => {
+        setAssignedEmployees((prev) => prev.filter((emp) => emp.id !== employeeId));
     };
 
     return (
@@ -205,9 +192,14 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                     <TextField fullWidth label="Search Employee" onChange={handleSearch} InputProps={{ startAdornment: <Search /> }} />
                     <List disablePadding>
                         {filteredEmployees.map(emp => (
-                            <ListItem sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
+                            <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
                                 <ListItemButton sx={{ padding: 0, paddingLeft: 2 }}>
                                     <ListItemText primary={emp.name} secondary={emp.emp_code} />
+                                    {assignedEmployees.some((e) => e.id === emp.id) ? (
+                                        <IconButton onClick={() => handleRemoveEmployee(emp.id)}><RemoveCircleOutline color="error" /></IconButton>
+                                    ) : (
+                                        <IconButton onClick={() => handleAssignEmployee(emp)}><AddCircleOutline color="primary" /></IconButton>
+                                    )}
                                 </ListItemButton>
                             </ListItem>
                         ))}
@@ -216,13 +208,20 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
 
                 <Box mt={2}>
                     <Typography variant="body1">Assigned Employees</Typography>
-                    {assignedEmployees.map((employee) => (
-                        <Chip
-                            key={employee.id}
-                            label={`${employee.name} (${employee.code})`}
-                            onDelete={() => handleRemoveEmployee(employee.id)}
-                        />
-                    ))}
+                    <Box mt={0.5} />
+                    {
+                        assignedEmployees.length > 0 ? <List disablePadding>
+                            {assignedEmployees.map(emp => (
+                                <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
+                                    <ListItemButton sx={{ padding: 0, paddingLeft: 2 }}>
+                                        <ListItemText primary={emp.name} secondary={emp.emp_code} />
+                                        <IconButton onClick={() => handleRemoveEmployee(emp.id)}><RemoveCircleOutline color="error" /></IconButton>
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </List>
+                            : <Typography variant="body2" sx={{ color: 'gray' }}> No employees assigned to this project yet. </Typography>
+                    }
                 </Box>
             </DialogContent>
             <DialogActions>
