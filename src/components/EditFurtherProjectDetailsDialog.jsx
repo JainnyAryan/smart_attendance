@@ -18,6 +18,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
     const [assignedEmployees, setAssignedEmployees] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [priorities, setPriorities] = useState([]);
+    const [roles, setRoles] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [modifiedAssignments, setModifiedAssignments] = useState(new Set());
 
@@ -38,6 +39,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
             });
             setStatuses(response.data.statuses);
             setPriorities(response.data.priorities);
+            setPriorities(response.data.roles);
         } catch (error) {
             console.error("Error fetching project metadata:", error);
         }
@@ -69,22 +71,28 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
     const handleSave = async () => {
         try {
             for (const empId of modifiedAssignments) {
-                if (assignedEmployees.some(emp => emp.id === empId)) {
-                    // Add employee
-                    await api.post(`${import.meta.env.VITE_BASE_URL}/admin/project-allocations/`, {
-                        project_id: updatedProject.id,
-                        employee_id: empId,
-                    }, {
-                        headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
-                    });
+                const isAssigned = assignedEmployees.some((emp) => emp.id === empId);
+                if (isAssigned) {
+                    // ✅ Add employee to project
+                    await api.post(
+                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/`,
+                        {
+                            project_id: updatedProject.id,
+                            employee_id: empId,
+                            role: "MANAGER",
+                        },
+                        { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
+                    );
                 } else {
-                    // Remove employee
-                    await api.delete(`${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${updatedProject.id}/${empId}`, {
-                        headers: { Authorization: `Bearer ${authToken}` },
-                    });
+                    // ❌ Remove employee from project
+                    await api.delete(
+                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${updatedProject.id}/${empId}`,
+                        { headers: { Authorization: `Bearer ${authToken}` } }
+                    );
                 }
             }
 
+            // ✅ Update project details
             await api.put(
                 `${import.meta.env.VITE_BASE_URL}/admin/projects/${updatedProject.id}`,
                 {
@@ -137,10 +145,17 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
             }
             return prev;
         });
+
+        setModifiedAssignments((prev) => new Set(prev).add(employee.id)); // Track the addition
     };
 
     const handleRemoveEmployee = (employeeId) => {
         setAssignedEmployees((prev) => prev.filter((emp) => emp.id !== employeeId));
+        setModifiedAssignments((prev) => {
+            const updatedSet = new Set(prev);
+            updatedSet.add(employeeId);
+            return updatedSet;
+        });
     };
 
     return (
