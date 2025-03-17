@@ -86,6 +86,8 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
                         <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
                             <TableCell><b>Code</b></TableCell>
                             <TableCell><b>Name</b></TableCell>
+                            <TableCell><b>Priority</b></TableCell>
+                            <TableCell><b>Status</b></TableCell>
                             <TableCell><b>Start Date</b></TableCell>
                             <TableCell><b>End Date</b></TableCell>
                             <TableCell><b>Actions</b></TableCell>
@@ -98,6 +100,8 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
                                 <TableRow>
                                     <TableCell>{project.code}</TableCell>
                                     <TableCell>{project.name}</TableCell>
+                                    <TableCell>{project.priority}</TableCell>
+                                    <TableCell>{project.status}</TableCell>
                                     <TableCell>{new Date(project.start_date).toLocaleDateString()}</TableCell>
                                     <TableCell>{new Date(project.end_date).toLocaleDateString()}</TableCell>
                                     <TableCell>
@@ -109,7 +113,7 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
 
                                 {/* Expanded Row with More Details */}
                                 <TableRow>
-                                    <TableCell colSpan={5} sx={{ padding: 0, borderBottom: "none" }}>
+                                    <TableCell colSpan={100} sx={{ padding: 0, borderBottom: "none" }}>
                                         <Accordion sx={{ boxShadow: "none", backgroundColor: "#f9f9f9" }}>
                                             <AccordionSummary expandIcon={<ExpandMore />} sx={{ padding: "0 16px" }}>
                                                 <Typography variant="body2" color="primary">
