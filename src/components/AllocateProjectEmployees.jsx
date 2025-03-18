@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext';
 import api from '../api/api';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemText, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemText, MenuItem, Paper, Select, Table, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { AddCircleOutline, CheckCircleOutline, RemoveCircleOutline, Search, Undo } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
@@ -98,9 +98,10 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
 
     }
 
-    const handleRemoveNewAllocation = (newAlloc) => {
+    const handleRemoveNewAllocation = (value) => {
+        const empId = value.employee?.id || value.id;
         setNewAllocations((prev) =>
-            prev.filter((item) => item.employee.id !== newAlloc.employee.id)
+            prev.filter((item) => item.employee.id !== empId)
         );
     }
 
@@ -177,7 +178,6 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
             <DialogContent>
 
                 <Box mt={1}>
-                    <Typography variant="h6">Project Allocation</Typography>
                     <Box mt={1.5} />
                     <TextField fullWidth label="Search Employee" onChange={handleSearch} InputProps={{ startAdornment: <Search /> }} />
                     <List disablePadding>
@@ -185,18 +185,20 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                             <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
                                 <ListItemButton sx={{ padding: 0, paddingLeft: 2 }} disableRipple>
                                     <ListItemText primary={emp.name} secondary={emp.emp_code} />
-                                    {allocations.some((a) => a.employee.id === emp.id) ? (
+                                    {allocations.some((a) => a.employee.id === emp.id) ?
                                         <IconButton><CheckCircleOutline color="success" /></IconButton>
-                                    ) : (
-                                        <IconButton onClick={() => handleAllocateNewEmployee(emp)}><AddCircleOutline color="primary" /></IconButton>
-                                    )}
+                                        : newAllocations.some((a) => a.employee.id === emp.id) ?
+                                            <IconButton onClick={() => handleRemoveNewAllocation(emp)}><RemoveCircleOutline color="error" /></IconButton>
+                                            :
+                                            <IconButton onClick={() => handleAllocateNewEmployee(emp)}><AddCircleOutline color="primary" /></IconButton>
+                                    }
                                 </ListItemButton>
                             </ListItem>
                         ))}
                     </List>
                 </Box>
 
-                <Box mt={2}>
+                <Box mt={4}>
                     <Typography variant="body1">Employees to be Allocated</Typography>
                     <Box mt={0.5} />
                     {newAllocations.length > 0 ? (
@@ -252,38 +254,54 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                     )}
                 </Box>
 
-                <Box mt={2}>
+                <Box mt={4}>
                     <Typography variant="body1">Employees Allocated</Typography>
                     <Box mt={0.5} />
                     {allocations.length > 0 ? (
-                        <List disablePadding>
-                            {allocations.map((alloc, index) => (
-                                <ListItem key={alloc.id}
-                                    sx={{
-                                        border: 1,
-                                        borderColor: "rgba(0, 0, 0, 0.1)",
-                                    }}
-                                    disablePadding>
-                                    <ListItemButton disableRipple sx={{ paddingRight: 0, display: 'flex', flexDirection: 'row', justifyContent: "space-between" }}>
-                                        <Box display={'flex'} flexDirection={'row'} flexWrap={'wrap'} justifyContent={'space-between'} sx={{ width: "100%", opacity: allocationsToBeRemoved.find((a) => a.id === alloc.id) ? 0.5 : 1 }} >
-                                            <ListItemText primary={alloc.employee.name} secondary={alloc.employee.emp_code} />
-                                            <ListItemText primary={'Role:'} secondary={alloc.role} />
-                                            <ListItemText primary={'Deadline:'} secondary={alloc.deadline} />
-                                        </Box>
-
-                                        {allocationsToBeRemoved.find((a) => a.id === alloc.id) ?
-                                            <IconButton onClick={() => handleUndoRemoveAllocation(alloc)}>
-                                                <Undo color='info' />
-                                            </IconButton>
-                                            :
-                                            <IconButton onClick={() => handleRemoveAllocation(alloc)}>
-                                                <RemoveCircleOutline color="error" />
-                                            </IconButton>
-                                        }
-                                    </ListItemButton>
-                                </ListItem>
-                            ))}
-                        </List>
+                        <TableContainer component={Paper} sx={{ display: "block", overflowX: "auto" }}>
+                            <Table disablePadding>
+                                <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+                                    <TableCell>
+                                        <b>Name/Code</b>
+                                    </TableCell>
+                                    <TableCell>
+                                        <b>Role</b>
+                                    </TableCell>
+                                    <TableCell>
+                                        <b>Deadline</b>
+                                    </TableCell>
+                                    <TableCell>
+                                        <b>Remove</b>
+                                    </TableCell>
+                                </TableHead>
+                                {allocations.map((alloc, index) => (
+                                    <TableRow>
+                                        <TableCell sx={{ opacity: allocationsToBeRemoved.find((a) => a.id === alloc.id) ? 0.5 : 1 }}>
+                                            {alloc.employee.name}<br />{alloc.employee.emp_code}
+                                        </TableCell>
+                                        <TableCell sx={{ opacity: allocationsToBeRemoved.find((a) => a.id === alloc.id) ? 0.5 : 1 }}>
+                                            {alloc.role}
+                                        </TableCell>
+                                        <TableCell sx={{ opacity: allocationsToBeRemoved.find((a) => a.id === alloc.id) ? 0.5 : 1 }}>
+                                            {alloc.deadline}
+                                        </TableCell>
+                                        <TableCell>
+                                            <center>
+                                                {allocationsToBeRemoved.find((a) => a.id === alloc.id) ? (
+                                                    <IconButton onClick={() => handleUndoRemoveAllocation(alloc)}>
+                                                        <Undo color="info" />
+                                                    </IconButton>
+                                                ) : (
+                                                    <IconButton onClick={() => handleRemoveAllocation(alloc)}>
+                                                        <RemoveCircleOutline color="error" />
+                                                    </IconButton>
+                                                )}
+                                            </center>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </Table>
+                        </TableContainer>
                     ) : (
                         <Typography variant="body2" sx={{ color: "gray" }}>
                             No employees allocated to this project yet.
