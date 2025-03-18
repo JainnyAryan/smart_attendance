@@ -19,15 +19,12 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
     const [statuses, setStatuses] = useState([]);
     const [priorities, setPriorities] = useState([]);
     const [roles, setRoles] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
     const [modifiedAssignments, setModifiedAssignments] = useState(new Set());
 
     useEffect(() => {
         if (open) {
             setUpdatedProject(project || {});
             fetchMetadata();
-            fetchEmployees();
-            fetchAssignedEmployees();
             setModifiedAssignments(new Set());
         }
     }, [open, project]);
@@ -82,30 +79,6 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
 
     const handleSave = async () => {
         try {
-            for (const empStr of modifiedAssignments) {
-                const emp = JSON.parse(empStr);
-
-                if (emp.remove) {
-                    console.log(emp);
-                    await api.delete(
-                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${emp.allocation_id}`,
-                        { headers: { Authorization: `Bearer ${authToken}` } }
-                    );
-                } else {
-                    await api.post(
-                        `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/`,
-                        {
-                            project_id: updatedProject.id,
-                            employee_id: emp.emp_id, // Ensure correct employee ID mapping
-                            role: emp.role,
-                            deadline: emp.deadline,
-                            allocated_on: emp.allocated_on,
-                        },
-                        { headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" } }
-                    );
-                }
-            }
-
             await api.put(
                 `${import.meta.env.VITE_BASE_URL}/admin/projects/${updatedProject.id}`,
                 {
@@ -125,15 +98,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
         }
     };
 
-    const handleSearch = (e) => {
-        const term = e.target.value.toLowerCase();
-        setSearchTerm(term);
-        setFilteredEmployees(
-            employees.filter(emp =>
-                emp.emp_code.toLowerCase().includes(term) || emp.name.toLowerCase().includes(term)
-            )
-        );
-    };
+    
 
     const handleAddSkill = (skill) => {
         if (skill.trim() && !updatedProject.required_skills.includes(skill.trim())) {
@@ -247,81 +212,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                     />
                 </Box>
 
-                <Box mt={4}>
-                    <Typography variant="h6">Project Allocation</Typography>
-                    <Box mt={1.5} />
-                    <TextField fullWidth label="Search Employee" onChange={handleSearch} InputProps={{ startAdornment: <Search /> }} />
-                    <List disablePadding>
-                        {filteredEmployees.map(emp => (
-                            <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
-                                <ListItemButton sx={{ padding: 0, paddingLeft: 2 }}>
-                                    <ListItemText primary={emp.name} secondary={emp.emp_code} />
-                                    {assignedEmployees.some((e) => e.emp_id === emp.id) ? (
-                                        <IconButton onClick={() => handleRemoveEmployee(emp.id)}><RemoveCircleOutline color="error" /></IconButton>
-                                    ) : (
-                                        <IconButton onClick={() => handleAssignEmployee(emp)}><AddCircleOutline color="primary" /></IconButton>
-                                    )}
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
-                </Box>
-
-                <Box mt={2}>
-                    <Typography variant="body1">Assigned Employees</Typography>
-                    <Box mt={0.5} />
-                    {assignedEmployees.length > 0 ? (
-                        <List disablePadding>
-                            {assignedEmployees.map((emp, index) => (
-                                <ListItem key={emp.emp_id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
-                                    <ListItemButton sx={{ paddingRight: 0 }}>
-                                        <ListItemText primary={emp.name} secondary={emp.emp_code} />
-                                        <Box display={'flex'} flexWrap={'wrap'} justifyContent={'end'}>
-                                            <FormControl sx={{ minWidth: 120, marginRight: 1 }}>
-                                                <InputLabel>Role</InputLabel>
-                                                <Select
-                                                    variant="outlined"
-                                                    value={emp.role || ""}
-                                                    onChange={(e) => {
-                                                        const newRole = e.target.value;
-                                                        handleRoleChange(emp.emp_id, newRole);
-                                                    }}
-                                                >
-                                                    {roles.map((role) => (
-                                                        <MenuItem key={role} value={role}>
-                                                            {role}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-
-                                            <TextField
-                                                label="Deadline"
-                                                type="date"
-                                                variant="filled"
-                                                value={emp.deadline || ""}
-                                                onChange={(e) => {
-                                                    const newDeadline = e.target.value;
-                                                    handleDeadlineChange(emp.emp_id, newDeadline);
-                                                }}
-                                                InputLabelProps={{ shrink: true }}
-                                                sx={{ width: 150, marginRight: 1 }}
-                                            />
-                                        </Box>
-
-                                        <IconButton onClick={() => handleRemoveEmployee(emp.emp_id)}>
-                                            <RemoveCircleOutline color="error" />
-                                        </IconButton>
-                                    </ListItemButton>
-                                </ListItem>
-                            ))}
-                        </List>
-                    ) : (
-                        <Typography variant="body2" sx={{ color: "gray" }}>
-                            No employees assigned to this project yet.
-                        </Typography>
-                    )}
-                </Box>
+                
 
             </DialogContent>
             <DialogActions>

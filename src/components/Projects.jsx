@@ -11,13 +11,15 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import api from '../api/api';
 import EditFurtherProjectDetailsDialog from './EditFurtherProjectDetailsDialog';
+import AllocateProjectEmployees from './AllocateProjectEmployees';
 
 const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) => {
     const [projects, setProjects] = useState([]);
     const { authToken } = useAuth();
     const [openDialog, setOpenDialog] = useState(false);
 
-    const [selectedProject, setSelectedProject] = useState(null);
+    const [selectedProjectForFurtherEdit, setSelectedProjectForFurtherEdit] = useState(null);
+    const [selectedProjectForAllocEmp, setSelectedProjectForAllocEmp] = useState(null);
 
     const [skillInput, setSkillInput] = useState('');
     const [priority, setPriority] = useState('');
@@ -184,9 +186,17 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
                                                         variant="contained"
                                                         size="small"
                                                         startIcon={<Edit />}
-                                                        onClick={() => setSelectedProject(project)}
+                                                        onClick={() => setSelectedProjectForFurtherEdit(project)}
                                                     >
                                                         Edit Project Further
+                                                    </Button>
+                                                    <Button
+                                                        variant="contained"
+                                                        size="small"
+                                                        startIcon={<Edit />}
+                                                        onClick={() => setSelectedProjectForAllocEmp(project)}
+                                                    >
+                                                        Employee Allocation
                                                     </Button>
                                                 </Box>
                                             </AccordionDetails>
@@ -200,11 +210,21 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
             </TableContainer>
 
             {/* Add/Edit Skills Dialog */}
-            {selectedProject && (
+            {selectedProjectForFurtherEdit && (
                 <EditFurtherProjectDetailsDialog
-                    open={!!selectedProject}
-                    onClose={() => setSelectedProject(null)}
-                    project={selectedProject}
+                open={!!selectedProjectForFurtherEdit}
+                onClose={() => setSelectedProjectForFurtherEdit(null)}
+                project={selectedProjectForFurtherEdit}
+                triggerRefresh={triggerRefreshListFlag}
+                />
+            )}
+
+            {/* Emp Alloc Dialog */}
+            {selectedProjectForAllocEmp && (
+                <AllocateProjectEmployees
+                    open={!!selectedProjectForAllocEmp}
+                    onClose={() => setSelectedProjectForAllocEmp(null)}
+                    project={selectedProjectForAllocEmp}
                     triggerRefresh={triggerRefreshListFlag}
                 />
             )}
