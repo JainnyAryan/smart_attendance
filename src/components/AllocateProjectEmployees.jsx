@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext';
 import api from '../api/api';
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputAdornment, InputLabel, List, ListItem, ListItemButton, ListItemText, MenuItem, Paper, Select, Stack, Table, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
-import { AddCircleOutline, CheckCircleOutline, RemoveCircleOutline, Search, Undo } from '@mui/icons-material';
+import { AddCircleOutline, CheckCircle, RemoveCircleOutline, Search, Undo } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
 
@@ -71,8 +71,11 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                     headers: { Authorization: `Bearer ${authToken}` },
                 }
             );
-            const suggestedEmployeesIds = response.data;
-            const suggestedEmployeesList = employees.filter(emp => suggestedEmployeesIds.includes(emp.id));
+            const suggestedEmployeesIds = response.data; // List of employee IDs in priority order
+            // Filter employees based on the suggested IDs
+            const suggestedEmployeesList = employees
+                .filter(emp => suggestedEmployeesIds.includes(emp.id))
+                .sort((a, b) => suggestedEmployeesIds.indexOf(a.id) - suggestedEmployeesIds.indexOf(b.id)); // Preserve order
             console.log(suggestedEmployeesList);
             setSuggestedEmployees(suggestedEmployeesList);
         } catch (error) {
@@ -270,7 +273,7 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                                     </Box>
                                 </Stack>
                                 {allocations.some((a) => a.employee.id === emp.id) ?
-                                    <IconButton><CheckCircleOutline color="success" /></IconButton>
+                                    <IconButton><CheckCircle color="success" /></IconButton>
                                     : newAllocations.some((a) => a.employee.id === emp.id) ?
                                         <IconButton onClick={() => handleRemoveNewAllocation(emp)}><RemoveCircleOutline color="error" /></IconButton>
                                         :
@@ -368,7 +371,7 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                                         </Box>
                                     </Stack>
                                     {allocations.some((a) => a.employee.id === emp.id) ?
-                                        <IconButton><CheckCircleOutline color="success" /></IconButton>
+                                        <IconButton><CheckCircle color="success" /></IconButton>
                                         : newAllocations.some((a) => a.employee.id === emp.id) ?
                                             <IconButton onClick={() => handleRemoveNewAllocation(emp)}><RemoveCircleOutline color="error" /></IconButton>
                                             :
