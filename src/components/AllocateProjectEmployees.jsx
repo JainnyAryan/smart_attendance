@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext';
 import api from '../api/api';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemText, MenuItem, Paper, Select, Table, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputAdornment, InputLabel, List, ListItem, ListItemButton, ListItemText, MenuItem, Paper, Select, Stack, Table, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { AddCircleOutline, CheckCircleOutline, RemoveCircleOutline, Search, Undo } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
@@ -34,8 +34,19 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
     const [allocationsToBeRemoved, setAllocationsToBeRemoved] = useState([]);
     const [newAllocations, setNewAllocations] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [employees, setEmployees] = useState([]);
+    const [filteredEmployees, setFilteredEmployees] = useState([]);
+    const [filters, setFilters] = useState({
+        search_query: '',
+        shift_id: '',
+        department_id: '',
+        designation_id: '',
+        skillFilters: [],
+    });
+    const [skillFilters, setSkillFilters] = useState([]);
+    const [shifts, setShifts] = useState([]);
+    const [departments, setDepartments] = useState([]);
+    const [designations, setDesignations] = useState([]);
     const [roles, setRoles] = useState([]);
 
 
@@ -67,24 +78,72 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
             const response = await api.get(`${import.meta.env.VITE_BASE_URL}/admin/projects-metadata/`, {
                 headers: { Authorization: `Bearer ${authToken}` },
             });
+            const [shiftsRes, departmentsRes, designationsRes] = await Promise.all([
+                api.get(`${import.meta.env.VITE_BASE_URL}/admin/shifts/`, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                }),
+                api.get(`${import.meta.env.VITE_BASE_URL}/admin/departments/`, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                }),
+                api.get(`${import.meta.env.VITE_BASE_URL}/admin/designations/`, {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                })
+            ]);
+            setShifts(shiftsRes.data);
+            setDepartments(departmentsRes.data);
+            setDesignations(designationsRes.data);
             setRoles(response.data.roles);
         } catch (error) {
             console.error("Error fetching project metadata:", error);
         }
     };
 
-    const handleSearch = (e) => {
-        const term = e.target.value.toLowerCase();
-        setSearchTerm(term);
-        setFilteredEmployees(
-            employees.filter(emp =>
-                emp.emp_code.toLowerCase().includes(term) || emp.name.toLowerCase().includes(term)
-            )
+    const filterEmployees = (name, value) => {
+        const updatedFilters = { ...filters, [name]: value };
+        setFilters(updatedFilters);
+
+        const filtered = employees.filter(employee => {
+            const search_query = updatedFilters.search_query.trim().toLowerCase();
+            const hasMatchingSkills =
+                skillFilters.length === 0 || skillFilters.every(skill => employee.skills?.includes(skill));
+
+            return (
+                (search_query === '' ||
+                    employee.name.toLowerCase().includes(search_query) ||
+                    employee.email.toLowerCase().includes(search_query) ||
+                    employee.emp_code.toLowerCase().includes(search_query)) &&
+                (updatedFilters.shift_id === '' || employee.shift?.id === updatedFilters.shift_id) &&
+                (updatedFilters.department_id === '' || employee.department?.id === updatedFilters.department_id) &&
+                (updatedFilters.designation_id === '' || employee.designation?.id === updatedFilters.designation_id) &&
+                hasMatchingSkills
+            );
+        });
+
+        setFilteredEmployees(filtered);
+    };
+
+    const addSkillFilter = (skill) => {
+        setSkillFilters((prevFilters) =>
+            prevFilters.includes(skill) ? prevFilters : [...prevFilters, skill]
         );
     };
 
+    const removeSkillFilter = (skill) => {
+        setSkillFilters((prevFilters) => prevFilters.filter(s => s !== skill));
+    };
+
+    useEffect(() => {
+        filterEmployees("skillFilters", skillFilters);
+    }, [skillFilters]);
 
     const handleAllocateNewEmployee = (employee) => {
+        var oldNewAllocationsSize = allocations.length + newAllocations.length;
+        var remainingAllocations = project.max_team_size - oldNewAllocationsSize;
+        if (remainingAllocations <= 0) {
+            toast.warning(`Already maximum employees allocated to this project.\n
+                Maximum team size for this project is ${project.max_team_size}.`);
+            return;
+        }
         const newAllocation = new AllocationCreate(
             {
                 project_id: project.id,
@@ -173,17 +232,97 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
 
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth={'md'} fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth={'xl'} fullWidth>
             <DialogTitle>Project Allocation to Employees</DialogTitle>
             <DialogContent>
                 <Box mt={1} >
+
                     <Box mt={1.5} />
-                    <TextField fullWidth label="Search Employee" onChange={handleSearch} InputProps={{ startAdornment: <Search /> }} />
-                    <List disablePadding>
+
+                    <TextField label="Search by name/code/email"
+                        value={filters.search_query}
+                        onChange={(e) => filterEmployees('search_query', e.target.value)}
+                        fullWidth
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Search />
+                                    </InputAdornment>
+                                ),
+                            }
+                        }}
+                    />
+                    <Box mt={2} />
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, marginBottom: 2 }}>
+                        <Select
+                            displayEmpty
+                            value={filters.shift_id}
+                            onChange={(e) => filterEmployees("shift_id", e.target.value)}
+                        >
+                            <MenuItem value="">All Shifts</MenuItem>
+                            {shifts.map((shift) => (
+                                <MenuItem key={shift.id} value={shift.id}>{shift.name}</MenuItem>
+                            ))}
+                        </Select>
+                        <Select
+                            displayEmpty
+                            value={filters.department_id}
+                            onChange={(e) => filterEmployees("department_id", e.target.value)}
+                        >
+                            <MenuItem value="">All Departments</MenuItem>
+                            {departments.map((dept) => (
+                                <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+                            ))}
+                        </Select>
+                        <Select
+                            displayEmpty
+                            value={filters.designation_id}
+                            onChange={(e) => filterEmployees("designation_id", e.target.value)}
+                        >
+                            <MenuItem value="">All Designations</MenuItem>
+                            {designations.map((desig) => (
+                                <MenuItem key={desig.id} value={desig.id}>{desig.name}</MenuItem>
+                            ))}
+                        </Select>
+                    </Box>
+
+                    <Box mt={2} />
+
+                    <Box display={'flex'} alignItems={'center'} flexWrap={'wrap'}>
+                        <TextField
+                            sx={{ marginTop: 1, width: { xs: "80dvw", sm: "50dvw", md: "40dvw", lg: "40dvw", xl: "40dvw" } }}
+                            label="Skills Filter (Type and press Enter)"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    addSkillFilter(e.target.value);
+                                    e.target.value = "";
+                                }
+                            }}
+                        />
+                        {skillFilters.length > 0 ? skillFilters.map((skill) =>
+                            <Chip key={skill} sx={{ margin: 0.5 }} label={skill} onDelete={() => removeSkillFilter(skill)} />
+                        ) :
+                            <Typography variant="body1" sx={{ color: "gray", margin: 2 }}>
+                                No skill filters.
+                            </Typography>
+                        }
+                    </Box>
+
+                    <Box mt={2} />
+
+                    <List sx={{ maxHeight: "40dvh", overflowY: "auto", overflowX: "auto" }} disablePadding>
                         {filteredEmployees.map(emp => (
                             <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
-                                <ListItemButton sx={{ padding: 0, paddingLeft: 2 }} disableRipple>
-                                    <ListItemText primary={emp.name} secondary={emp.emp_code} />
+                                <ListItemButton sx={{ padding: 0, paddingLeft: 2, display: "flex", justifyContent: "space-between" }} disableRipple>
+                                    <Stack direction={'column'}>
+                                        <ListItemText primary={emp.name} secondary={emp.emp_code} />
+                                        <Box>
+                                            {emp.skills.map((skill) =>
+                                                <Chip label={skill} variant={skillFilters.includes(skill) ? 'filled' : 'outlined'} sx={{ fontSize: 12, padding: 0, height: 18, marginBottom: 0.5, marginRight: 0.5 }} />
+                                            )}
+                                        </Box>
+                                    </Stack>
                                     {allocations.some((a) => a.employee.id === emp.id) ?
                                         <IconButton><CheckCircleOutline color="success" /></IconButton>
                                         : newAllocations.some((a) => a.employee.id === emp.id) ?
@@ -195,13 +334,14 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                             </ListItem>
                         ))}
                     </List>
+
                 </Box>
 
                 <Box mt={4}>
-                    <Typography variant="body1">Employees to be Allocated</Typography>
+                    <Typography variant="body1">Employees to be Allocated ({newAllocations.length})</Typography>
                     <Box mt={0.5} />
                     {newAllocations.length > 0 ? (
-                        <List disablePadding>
+                        <List sx={{ maxHeight: "40dvh", overflowY: "auto", overflowX: "auto" }} disablePadding>
                             {newAllocations.map((newAlloc, index) => (
                                 <ListItem key={newAlloc.employee.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
                                     <ListItemButton sx={{ paddingRight: 0 }} disableRipple>
@@ -254,10 +394,10 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                 </Box>
 
                 <Box mt={4}>
-                    <Typography variant="body1">Employees Allocated</Typography>
+                    <Typography variant="body1">Employees Allocated ({allocations.length})</Typography>
                     <Box mt={0.5} />
                     {allocations.length > 0 ? (
-                        <TableContainer component={Paper} sx={{ display: "block", overflowX: "auto" }}>
+                        <TableContainer component={Paper} sx={{ display: "block", maxHeight: "40dvh", overflowY: "auto", overflowX: "auto" }}>
                             <Table disablePadding>
                                 <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
                                     <TableCell>
@@ -270,7 +410,9 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                                         <b>Deadline</b>
                                     </TableCell>
                                     <TableCell>
-                                        <b>Remove</b>
+                                        <center>
+                                            <b>Remove ({allocationsToBeRemoved.length})</b>
+                                        </center>
                                     </TableCell>
                                 </TableHead>
                                 {allocations.map((alloc, index) => (

@@ -75,8 +75,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = (redirectToLogin = true) => {
-    setLoggedOut(true);
+  const logout = (redirectToLogin = true, isUserLogout = false) => {
+    if (isUserLogout) setLoggedOut(true);
     if (redirectToLogin) navigate("/login", { replace: true });
     setUser(null);
     localStorage.removeItem("user");

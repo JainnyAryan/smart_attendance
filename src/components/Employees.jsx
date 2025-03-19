@@ -33,9 +33,9 @@ const Employees = ({ refreshListFlag, openEditDialog }) => {
         setFilters(updatedFilters);
 
         const filtered = employees.filter(employee => {
-            const search_query = updatedFilters.search_query.trim();
+            const search_query = updatedFilters.search_query.trim().toLowerCase();
             return (
-                (search_query === '' || employee.name.includes(search_query) || employee.email.includes(search_query) || employee.emp_code.includes(search_query)) &&
+                (search_query === '' || employee.name.toLowerCase().includes(search_query) || employee.email.toLowerCase().includes(search_query) || employee.emp_code.toLowerCase().includes(search_query)) &&
                 (updatedFilters.shift_id === '' || employee.shift?.id === updatedFilters.shift_id) &&
                 (updatedFilters.department_id === '' || employee.department?.id === updatedFilters.department_id) &&
                 (updatedFilters.designation_id === '' || employee.designation?.id === updatedFilters.designation_id)

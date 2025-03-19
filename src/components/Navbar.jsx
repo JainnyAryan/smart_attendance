@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { IconArrowLeftCircle, IconClock, IconClock12 } from '@tabler/icons-react'
 import React, { useState } from 'react';
-import { Menu, Person, BadgeOutlined, Domain, People, Dashboard, TimeToLeave, ComputerOutlined, ArrowLeft, ArrowBack, Folder, Logout } from '@mui/icons-material';
+import { Menu, Person, BadgeOutlined, Domain, People, Dashboard, TimeToLeave, ComputerOutlined, ArrowLeft, ArrowBack, Folder, Logout, Work } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SideDrawer from './SideDrawer';
@@ -33,31 +33,37 @@ const Navbar = ({ titleText, actions, needsBackButton }) => {
     const adminDrawerItems = [
         {
             icon: <Dashboard />,
+            iconColor: "#",
             title: "Dashboard",
             link: '/admin',
         },
         {
             icon: <People />,
+            iconColor: "#3f51b5",
             title: "Employees",
             link: '/admin/employees',
         },
         {
-            icon: <Folder />,
+            icon: <Work />,
+            iconColor: "#795548",
             title: "Projects",
             link: '/admin/projects',
         },
         {
             icon: <Domain />,
+            iconColor: "#f50057",
             title: "Departments",
             link: '/admin/departments',
         },
         {
             icon: <BadgeOutlined />,
+            iconColor: "#4caf50",
             title: "Designations",
             link: '/admin/designations',
         },
         {
             icon: <IconClock />,
+            iconColor: "#ff9800",
             title: "Shifts",
             link: '/admin/shifts',
         },
@@ -79,7 +85,7 @@ const Navbar = ({ titleText, actions, needsBackButton }) => {
 
     const handleSignout = () => {
         setIsLoading(true);
-        logout(navigate);
+        logout(navigate, true);
         setIsLoading(false);
     };
 
@@ -107,7 +113,7 @@ const Navbar = ({ titleText, actions, needsBackButton }) => {
                     <Typography
                         variant="h5"
                         component="div"
-                        sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.75rem", lg: "2rem" } }}
+                        sx={{ fontSize: { xs: "1.1rem", sm: "1.3rem", md: "1.5rem", lg: "1.65rem" } }}
                     >
                         {titleText}
                     </Typography>
