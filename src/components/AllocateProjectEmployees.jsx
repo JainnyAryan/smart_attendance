@@ -33,8 +33,8 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
     const [allocations, setAllocations] = useState([]);
     const [allocationsToBeRemoved, setAllocationsToBeRemoved] = useState([]);
     const [newAllocations, setNewAllocations] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
     const [employees, setEmployees] = useState([]);
+    const [suggestedEmployees, setSuggestedEmployees] = useState([]);
     const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [filters, setFilters] = useState({
         search_query: '',
@@ -57,8 +57,26 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
             });
             setEmployees(response.data);
             setFilteredEmployees(response.data);
+            await fetchSuggestedEmployees(response.data);
         } catch (error) {
             console.error("Error fetching employees:", error);
+        }
+    };
+
+    const fetchSuggestedEmployees = async (employees) => {
+        try {
+            const response = await api.get(
+                `${import.meta.env.VITE_BASE_URL}/admin/project-allocations/${project.id}/suggested-employees/`,
+                {
+                    headers: { Authorization: `Bearer ${authToken}` },
+                }
+            );
+            const suggestedEmployeesIds = response.data;
+            const suggestedEmployeesList = employees.filter(emp => suggestedEmployeesIds.includes(emp.id));
+            console.log(suggestedEmployeesList);
+            setSuggestedEmployees(suggestedEmployeesList);
+        } catch (error) {
+            console.error("Error fetching suggested employees:", error);
         }
     };
 
@@ -235,10 +253,36 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
         <Dialog open={open} onClose={onClose} maxWidth={'xl'} fullWidth>
             <DialogTitle>Project Allocation to Employees</DialogTitle>
             <DialogContent>
-                <Box mt={1} >
-
+                <Box mt={1.5} />
+                <Typography variant="body1"><b>Suggested Employees</b>  ({suggestedEmployees.length})</Typography>
+                <Box mt={1.5} />
+                <List sx={{ maxHeight: "50dvh", overflowY: "auto", overflowX: "auto" }} disablePadding>
+                    {suggestedEmployees.map(emp => (
+                        <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
+                            <ListItemButton sx={{ padding: 0, paddingLeft: 2, display: "flex", justifyContent: "space-between" }} disableRipple>
+                                <Stack direction={'column'}>
+                                    <ListItemText primary={emp.name} secondary={emp.emp_code} sx={{ marginBottom: 0 }} />
+                                    <Typography variant='body2' color='success' sx={{ marginBottom: 1 }}>Experience: {emp.experience} years</Typography>
+                                    <Box>
+                                        {emp.skills.map((skill) =>
+                                            <Chip label={skill} variant={project.required_skills.includes(skill) ? 'filled' : 'outlined'} color={project.required_skills.includes(skill) ? 'success' : ''} sx={{ fontSize: 12, padding: 0, height: 18, marginBottom: 0.5, marginRight: 0.5 }} />
+                                        )}
+                                    </Box>
+                                </Stack>
+                                {allocations.some((a) => a.employee.id === emp.id) ?
+                                    <IconButton><CheckCircleOutline color="success" /></IconButton>
+                                    : newAllocations.some((a) => a.employee.id === emp.id) ?
+                                        <IconButton onClick={() => handleRemoveNewAllocation(emp)}><RemoveCircleOutline color="error" /></IconButton>
+                                        :
+                                        <IconButton onClick={() => handleAllocateNewEmployee(emp)}><AddCircleOutline color="primary" /></IconButton>
+                                }
+                            </ListItemButton>
+                        </ListItem>
+                    ))}
+                </List>
+                <Box mt={4} >
+                    <Typography variant="body1"><b>All Employees</b></Typography>
                     <Box mt={1.5} />
-
                     <TextField label="Search by name/code/email"
                         value={filters.search_query}
                         onChange={(e) => filterEmployees('search_query', e.target.value)}
@@ -338,7 +382,7 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                 </Box>
 
                 <Box mt={4}>
-                    <Typography variant="body1">Employees to be Allocated ({newAllocations.length})</Typography>
+                    <Typography variant="body1"><b>Employees to be Allocated</b> ({newAllocations.length})</Typography>
                     <Box mt={0.5} />
                     {newAllocations.length > 0 ? (
                         <List sx={{ maxHeight: "40dvh", overflowY: "auto", overflowX: "auto" }} disablePadding>
@@ -394,7 +438,7 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                 </Box>
 
                 <Box mt={4}>
-                    <Typography variant="body1">Employees Allocated ({allocations.length})</Typography>
+                    <Typography variant="body1"><b>Employees Allocated</b> ({allocations.length})</Typography>
                     <Box mt={0.5} />
                     {allocations.length > 0 ? (
                         <TableContainer component={Paper} sx={{ display: "block", maxHeight: "40dvh", overflowY: "auto", overflowX: "auto" }}>

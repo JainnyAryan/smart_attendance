@@ -19,7 +19,7 @@ const ProjectsPage = () => {
         <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
             <Navbar titleText={'Projects'} />
 
-            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
                 <Button variant="contained" onClick={() => { setEditProjectData(null); setIsAddProjectOpen(true); }}>
                     <Add sx={{ marginRight: 1 }} /> Add Project
                 </Button>

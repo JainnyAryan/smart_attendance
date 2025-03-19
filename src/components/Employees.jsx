@@ -98,23 +98,11 @@ const Employees = ({ refreshListFlag, openEditDialog }) => {
             />
             <Box mt={2} />
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, marginBottom: 2 }}>
-                <Select
-                    displayEmpty
-                    value={filters.shift_id}
-                    onChange={(e) => filterEmployees("shift_id", e.target.value)}
-                    fullWidth
-                >
-                    <MenuItem value="">All Shifts</MenuItem>
-                    {shifts.map((shift) => (
-                        <MenuItem key={shift.id} value={shift.id}>{shift.name}</MenuItem>
-                    ))}
-                </Select>
 
                 <Select
                     displayEmpty
                     value={filters.department_id}
                     onChange={(e) => filterEmployees("department_id", e.target.value)}
-                    fullWidth
                 >
                     <MenuItem value="">All Departments</MenuItem>
                     {departments.map((dept) => (
@@ -126,13 +114,24 @@ const Employees = ({ refreshListFlag, openEditDialog }) => {
                     displayEmpty
                     value={filters.designation_id}
                     onChange={(e) => filterEmployees("designation_id", e.target.value)}
-                    fullWidth
                 >
                     <MenuItem value="">All Designations</MenuItem>
                     {designations.map((desig) => (
                         <MenuItem key={desig.id} value={desig.id}>{desig.name}</MenuItem>
                     ))}
                 </Select>
+
+                <Select
+                    displayEmpty
+                    value={filters.shift_id}
+                    onChange={(e) => filterEmployees("shift_id", e.target.value)}
+                >
+                    <MenuItem value="">All Shifts</MenuItem>
+                    {shifts.map((shift) => (
+                        <MenuItem key={shift.id} value={shift.id}>{shift.name}</MenuItem>
+                    ))}
+                </Select>
+
             </Box>
 
             {/* Employee Table */}

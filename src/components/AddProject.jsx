@@ -146,6 +146,7 @@ const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, pro
             console.error('Error deleting project:', error);
         }
         finally {
+            setIsDeleteDialogOpen(false);
             setIsLoading(false);
             setIsOpen(false);
         }
@@ -333,7 +334,7 @@ const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, pro
                             <Button color="error" variant='contained' fullWidth onClick={() => { setIsDeleteDialogOpen(true); }} disabled={isLoading}>
                                 <Delete />
                                 <Box width={12} />
-                                Delete Shift
+                                Delete Project
                             </Button>
                         </Tooltip>
                     </>
