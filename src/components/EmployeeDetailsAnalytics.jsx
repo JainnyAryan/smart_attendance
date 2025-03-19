@@ -194,6 +194,18 @@ const EmployeeDetailsAnalytics = ({ employee, printRefs }) => {
                         />
                     </Grid>
                 </Grid>
+                <Box mt={3} />
+                <Typography variant="h6">
+                    <b>Skills:</b>
+                </Typography>
+                {employee.skills.map((skill) =>
+                    <Chip key={skill} label={skill} variant="outlined" sx={{ margin: 0.5, marginLeft: 0 }} />
+                )}
+                <Box mt={3} />
+                <Typography variant="h6">
+                    <b>Experience (in years):</b>
+                </Typography>
+                <Typography variant="h6">{employee.experience}</Typography>
             </Paper>
 
             <Box padding={2} />

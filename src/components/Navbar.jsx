@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { IconArrowLeftCircle, IconClock, IconClock12 } from '@tabler/icons-react'
 import React, { useState } from 'react';
-import { Menu, Person, BadgeOutlined, Domain, People, Dashboard, TimeToLeave, ComputerOutlined, ArrowLeft, ArrowBack, Folder } from '@mui/icons-material';
+import { Menu, Person, BadgeOutlined, Domain, People, Dashboard, TimeToLeave, ComputerOutlined, ArrowLeft, ArrowBack, Folder, Logout } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SideDrawer from './SideDrawer';
@@ -103,19 +103,24 @@ const Navbar = ({ titleText, actions, needsBackButton }) => {
                         <IconButton children={<Menu />} style={{ color: "white" }} onClick={() => { setIsSideDrawerOpen(!isSideDrawerOpen); }} />
                         : <IconButton children={<ArrowBack />} style={{ color: "white" }} onClick={() => { navigate(-1); }} />
                     }
-                    <Box padding={1} />
-                    <Typography variant="h5" component="div">
+                    <Box padding={0.7} />
+                    <Typography
+                        variant="h5"
+                        component="div"
+                        sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.75rem", lg: "2rem" } }}
+                    >
                         {titleText}
                     </Typography>
                 </Toolbar>
-                <Box display={'flex'} flexDirection={'row'} alignItems={'center'}>
-                    <Toolbar>
-                        <Typography>
+                <Box display={'flex'} flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
+                    <Toolbar sx={{ paddingLeft: 0, paddingRight: 0, padding: 0 }}>
+                        <Typography variant='body2' sx={{ textAlign: "end" }}>
                             Hello, {user?.email}
                         </Typography>
-                        <Avatar variant="text" onClick={handleSignoutOpen} style={{ marginLeft: "20px" }}>
-                            <Person sx={{ color: 'white' }} />
-                        </Avatar>
+                        <Box width={1} />
+                        <IconButton onClick={handleSignoutOpen}>
+                            <Logout sx={{ color: 'white' }} />
+                        </IconButton>
                     </Toolbar>
                 </Box>
             </AppBar>
@@ -133,7 +138,7 @@ const Navbar = ({ titleText, actions, needsBackButton }) => {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </div>
+        </div >
     );
 };
 

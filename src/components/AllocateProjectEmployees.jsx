@@ -173,11 +173,10 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
 
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth={'md'} fullWidth>
             <DialogTitle>Project Allocation to Employees</DialogTitle>
             <DialogContent>
-
-                <Box mt={1}>
+                <Box mt={1} >
                     <Box mt={1.5} />
                     <TextField fullWidth label="Search Employee" onChange={handleSearch} InputProps={{ startAdornment: <Search /> }} />
                     <List disablePadding>

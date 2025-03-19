@@ -10,6 +10,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loggedOut, setLoggedOut] = useState(false);
   const [authToken, setAuthToken] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }) => {
       const userData = userRes.data;
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
-
+      setLoggedOut(false);
       navigate(userData.is_admin ? "/admin/dashboard" : "/dashboard", { replace: true });
     } catch (error) {
       throw new Error("Invalid credentials");
@@ -75,15 +76,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = (redirectToLogin = true) => {
+    setLoggedOut(true);
+    if (redirectToLogin) navigate("/login", { replace: true });
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setAuthToken(null);
-    if (redirectToLogin) navigate("/login", { replace: true });
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, authToken }}>
+    <AuthContext.Provider value={{ user, login, logout, loggedOut, loading, authToken }}>
       {children}
     </AuthContext.Provider>
   );

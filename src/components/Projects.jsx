@@ -6,7 +6,7 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     TextField, Button, Typography
 } from '@mui/material';
-import { Edit, ExpandMore, AddCircleOutline, Close } from '@mui/icons-material';
+import { Edit, ExpandMore, AddCircleOutline, Close, People } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import api from '../api/api';
@@ -116,7 +116,7 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
     };
 
     return (
-        <Container sx={{ width: "100%", maxWidth: "100vw", padding: 0 }}>
+        <Container sx={{ width: "100%", maxWidth: "100dvw", padding: 2 }}>
             <Typography variant="h5" sx={{ marginBottom: 2 }}>Project List</Typography>
             <TableContainer component={Paper} sx={{ display: "block", overflowX: "auto" }}>
                 <Table sx={{ width: "100%" }}>
@@ -193,7 +193,8 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
                                                     <Button
                                                         variant="contained"
                                                         size="small"
-                                                        startIcon={<Edit />}
+                                                        color='secondary'
+                                                        startIcon={<People />}
                                                         onClick={() => setSelectedProjectForAllocEmp(project)}
                                                     >
                                                         Employee Allocation
@@ -212,10 +213,10 @@ const Projects = ({ refreshListFlag, triggerRefreshListFlag, openEditDialog }) =
             {/* Add/Edit Skills Dialog */}
             {selectedProjectForFurtherEdit && (
                 <EditFurtherProjectDetailsDialog
-                open={!!selectedProjectForFurtherEdit}
-                onClose={() => setSelectedProjectForFurtherEdit(null)}
-                project={selectedProjectForFurtherEdit}
-                triggerRefresh={triggerRefreshListFlag}
+                    open={!!selectedProjectForFurtherEdit}
+                    onClose={() => setSelectedProjectForFurtherEdit(null)}
+                    project={selectedProjectForFurtherEdit}
+                    triggerRefresh={triggerRefreshListFlag}
                 />
             )}
 

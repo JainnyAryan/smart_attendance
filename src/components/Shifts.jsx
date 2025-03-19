@@ -27,7 +27,7 @@ const Shifts = ({ refreshListFlag, openEditDialog }) => {
 
 
     return (
-        <Container sx={{ width: "100%", maxWidth: "100vw", padding: 0 }}>
+        <Container sx={{ width: "100%", maxWidth: "100dvw", padding: 2 }}>
             <Typography variant="h5" sx={{ marginBottom: 2 }}>Shift List</Typography>
             <TableContainer component={Paper} sx={{ display: "block", overflowX: "auto" }}>
                 <Table sx={{ width: "100%" }}>

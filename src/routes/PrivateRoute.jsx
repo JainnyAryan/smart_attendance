@@ -4,11 +4,11 @@ import { IconNumber4Small } from "@tabler/icons-react";
 import { toast } from "react-toastify";
 
 const PrivateRoute = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, loggedOut } = useAuth();
 
   if (loading) return null;
   if (!user) {
-    toast.error("Session timed-out. Please login again.");
+    if (!loggedOut) toast.error("Session timed-out. Please login again.");
     return <Navigate to="/login" replace />;
   }
 
