@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/api';
 import TouchRipple from '@mui/material/ButtonBase/TouchRipple';
 import { useNavigate } from 'react-router-dom';
+import ChatBot from './ChatBot';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -89,6 +90,7 @@ const AdminDashboard = () => {
           )
         })}
       </Grid>
+      <ChatBot/>
     </Container >
   );
 };
