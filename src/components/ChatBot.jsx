@@ -37,6 +37,7 @@ const ChatBot = () => {
                 setMessages((prev) => prev.filter((msg) => msg.content !== "..."));
 
                 if (res.data.intent === "employee_attendance_summary") {
+                    addMessage(res.data.response, "bot");
                     addMessage(res.data, "bot", true);
                 } else {
                     addMessage(res.data.response, "bot");
