@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { IconArrowLeftCircle, IconClock, IconClock12 } from '@tabler/icons-react'
 import React, { useState } from 'react';
-import { Menu, Person, BadgeOutlined, Domain, People, Dashboard, TimeToLeave, ComputerOutlined, ArrowLeft, ArrowBack, Folder, Logout, Work } from '@mui/icons-material';
+import { Menu, Person, BadgeOutlined, Domain, People, Dashboard, TimeToLeave, ComputerOutlined, ArrowLeft, ArrowBack, Folder, Logout, Work, Chat } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import SideDrawer from './SideDrawer';
@@ -118,6 +118,13 @@ const Navbar = ({ titleText, actions, needsBackButton }) => {
                         {titleText}
                     </Typography>
                 </Toolbar>
+                <Button
+                    sx={{ display: "flex", alignItems: "center", gap: 1, marginRight: 2, color: "#1976d2", backgroundColor: "white" }}
+                    onClick={() => { navigate(`/${user.is_admin ? 'admin/' : ""}chatbot`); }}
+                    variant='contained'
+                >
+                    <Chat /> ChatBot
+                </Button>
                 <Box display={'flex'} flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
                     <Toolbar sx={{ paddingLeft: 0, paddingRight: 0, padding: 0 }}>
                         <Typography variant='body2' sx={{ textAlign: "end" }}>

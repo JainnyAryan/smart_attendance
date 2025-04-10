@@ -9,7 +9,7 @@ const EmployeeDashboardPage = () => {
     const navigate = useNavigate();
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <Navbar />
+            <Navbar titleText={'Dashboard'}/>
             <Box padding={2}>
                 <EmployeeDashboard />
 

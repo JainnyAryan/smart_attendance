@@ -90,7 +90,6 @@ const AdminDashboard = () => {
           )
         })}
       </Grid>
-      <ChatBot/>
     </Container >
   );
 };

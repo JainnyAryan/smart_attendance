@@ -6,7 +6,7 @@ import EmployeeSystemLog from '../../components/EmployeeSystemLog';
 const EmployeeSystemLogPage = () => {
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <Navbar />
+            <Navbar titleText={'System Log'} />
             <Box padding={2}>
                 <EmployeeSystemLog />
             </Box>

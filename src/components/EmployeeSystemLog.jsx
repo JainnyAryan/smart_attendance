@@ -53,8 +53,12 @@ const EmployeeSystemLog = () => {
     }, [logStatus]);
 
     const fetchClientIp = async () => {
-        const res = await api.get('https://api.ipify.org?format=json');
-        return res.data.ip;
+        const res = await fetch("https://api.ipify.org?format=json", {
+            method: "GET",
+            credentials: "omit", // 👈 prevents CORS error
+        });
+        const data = await res.json();
+        return data.ip;
     };
 
     const handleLogIn = async () => {

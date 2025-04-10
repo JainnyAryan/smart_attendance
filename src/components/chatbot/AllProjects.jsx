@@ -1,15 +1,14 @@
 import React from "react";
 import {
-    Accordion, AccordionDetails, AccordionSummary, Card, Box, Chip, Container,
-    Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper,
+    Box,
+    Paper,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    TextField, Button, Typography
 } from '@mui/material';
 
 
 const AllProjects = ({ data }) => {
     if (!data || !data.projects || data.projects.length === 0) {
-        return <Typography variant="body2">No projects found.</Typography>;
+        return null;
     }
 
     return (

@@ -14,6 +14,7 @@ import EmployeeDashboardPage from "../pages/employee/EmployeeDashboardPage";
 import EmployeeSystemLogPage from "../pages/employee/EmployeeSystemLogPage";
 import EmployeeDetailsAnalyticsPage from "../pages/admin/EmployeeDetailsAnalyticsPage";
 import ProjectsPage from "../pages/admin/ProjectsPage";
+import ChatBotPage from "../pages/ChatBotPage";
 
 const RoutesList = () => {
   const { loading, user } = useAuth();
@@ -30,6 +31,7 @@ const RoutesList = () => {
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<EmployeeDashboardPage />} />
         <Route path="/systemlogs" element={<EmployeeSystemLogPage />} />
+        <Route path="/chatbot" element={<ChatBotPage />} />
 
         {/* Admin-Only Routes */}
         <Route element={<AdminRoute />}>
@@ -42,6 +44,7 @@ const RoutesList = () => {
             <Route path="shifts" element={<ShiftsPage />} />
             <Route path="departments" element={<DepartmentsPage />} />
             <Route path="designations" element={<DesignationsPage />} />
+            <Route path="chatbot" element={<ChatBotPage />} />
           </Route>
         </Route>
       </Route>
