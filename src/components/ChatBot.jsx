@@ -189,16 +189,17 @@ const ChatBot = () => {
                             transition: "all 0.3s ease",
                             "&:hover": {
                                 transition: "all 0.3s ease",
-                                transform: "translateY(-2px)",
+                                transform: "translateY(-3px)",
                                 background: "linear-gradient(135deg, #1565c0, #0d47a1)",
                                 boxShadow: "0 6px 16px rgba(21, 101, 192, 0.4)",
                             }
                         }}
                     >
                         <ArrowForwardIos sx={{
+                            transition: "all 0.3s ease",
                             "&:hover": {
                                 transition: "all 0.3s ease",
-                                transform: "translateX(2px)",
+                                transform: "translateX(5px)",
                             }
                         }} />
                     </Button>

@@ -15,6 +15,7 @@ import EmployeeSystemLogPage from "../pages/employee/EmployeeSystemLogPage";
 import EmployeeDetailsAnalyticsPage from "../pages/admin/EmployeeDetailsAnalyticsPage";
 import ProjectsPage from "../pages/admin/ProjectsPage";
 import ChatBotPage from "../pages/ChatBotPage";
+import EmployeeProjectAllocationsPage from "../pages/employee/EmployeeProjectAllocationsPage";
 
 const RoutesList = () => {
   const { loading, user } = useAuth();
@@ -23,7 +24,7 @@ const RoutesList = () => {
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to={user.is_admin ? "/admin/dashboard" : "/dashboard"} replace /> : <LoginPage />} />
+      <Route index element={user ? <Navigate to={user.is_admin ? "/admin/dashboard" : "/dashboard"} replace /> : <LoginPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="*" element={<NotFoundPage />} />
 
@@ -31,6 +32,7 @@ const RoutesList = () => {
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<EmployeeDashboardPage />} />
         <Route path="/systemlogs" element={<EmployeeSystemLogPage />} />
+        <Route path="/my-project-allocations" element={<EmployeeProjectAllocationsPage />} />
         <Route path="/chatbot" element={<ChatBotPage />} />
 
         {/* Admin-Only Routes */}

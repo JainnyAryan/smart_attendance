@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
         setUser(response.data);
         if (response.data.is_admin && !location.pathname.startsWith("/admin")) {
           navigate("/admin/dashboard", { replace: true });
-        } else if (!response.data.is_admin && !location.pathname.startsWith("/dashboard")) {
+        } else if (!response.data.is_admin && location.pathname === "/") {
           navigate("/dashboard", { replace: true });
         }
       } catch (error) {

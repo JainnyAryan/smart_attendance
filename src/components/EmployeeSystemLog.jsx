@@ -20,7 +20,7 @@ const EmployeeSystemLog = () => {
     const [mostRecentLog, setMostRecentLog] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const { user } = useAuth();
+    const { user, authToken } = useAuth();
     const empId = user.employee.id;
 
     useEffect(() => {
@@ -28,7 +28,10 @@ const EmployeeSystemLog = () => {
             try {
                 setLoading(true);
                 const response = await api.get(
-                    `${import.meta.env.VITE_BASE_URL}/employee/system-log/employee/latest/${empId}`
+                    `${import.meta.env.VITE_BASE_URL}/employee/system-log/employee/latest/${empId}`,
+                    {
+                        headers:{'Authorization' : `Bearer ${authToken}`}
+                    }
                 );
                 const logs = response.data;
                 const mostRecentLog = logs;

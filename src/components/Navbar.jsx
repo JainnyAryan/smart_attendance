@@ -79,6 +79,11 @@ const Navbar = ({ titleText, actions, needsBackButton }) => {
             icon: <ComputerOutlined />,
             title: "System Logs",
             link: '/systemlogs',
+        },
+        {
+            icon: <Work />,
+            title: "My Project Allocations",
+            link: '/my-project-allocations',
         }
     ];
 
