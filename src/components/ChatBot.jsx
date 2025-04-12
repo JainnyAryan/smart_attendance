@@ -14,6 +14,7 @@ import MyAttendanceLogsChat from "./chatbot/MyAttendanceLogsChat";
 import MyProjectAllocations from "./chatbot/MyProjectAllocations";
 import EmployeeScoreChat from "./chatbot/EmployeeScoreChat";
 import EmployeeScoreBreakdownChat from "./chatbot/EmployeeScoreBreakdownChat";
+import WhatIfScorePanelChat from "./chatbot/WhatIfScorePanelChat";
 
 const ChatBot = () => {
     const { authToken } = useAuth();
@@ -88,6 +89,8 @@ const ChatBot = () => {
                 return <EmployeeScoreChat data={msg.content.data} />;
             case "my_score_breakdown":
                 return <EmployeeScoreBreakdownChat data={msg.content.data} />;
+            case "what_if_score_prediction":
+                return <WhatIfScorePanelChat data={msg.content.data} />;
             default:
                 return <></>;
         }

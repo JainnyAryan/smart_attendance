@@ -48,8 +48,8 @@ const EmployeeScoreChat = ({ data }) => {
                             value={score}
                             includeDecimals={false}
                             fontSize="64px"
-                            color={color}
                             fontWeight={700}
+                            color={color}
                         />
                         <Typography variant="body2" color="text.secondary" fontSize="16px">
                             out of 100
