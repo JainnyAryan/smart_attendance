@@ -12,6 +12,7 @@ import ProjectDetailsChat from "./chatbot/ProjectDetailsChat";
 import { ArrowForwardIos, Send, SendOutlined, SendSharp } from "@mui/icons-material";
 import MyAttendanceLogsChat from "./chatbot/MyAttendanceLogsChat";
 import MyProjectAllocations from "./chatbot/MyProjectAllocations";
+import EmployeeScoreChat from "./chatbot/EmployeeScoreChat";
 
 const ChatBot = () => {
     const { authToken } = useAuth();
@@ -82,6 +83,8 @@ const ChatBot = () => {
                 return <MyAttendanceLogsChat data={msg.content.data} />;
             case "my_project_allocations":
                 return <MyProjectAllocations data={msg.content.data} />;
+            case "my_current_score":
+                return <EmployeeScoreChat data={msg.content.data} />;
             default:
                 return <></>;
         }

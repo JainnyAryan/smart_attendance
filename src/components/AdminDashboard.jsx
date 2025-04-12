@@ -77,7 +77,6 @@ const AdminDashboard = () => {
                       {card.icon}
                     </Avatar>
                     <Box textAlign='right'>
-
                       <Typography variant="h6">{card.title}</Typography>
                       <Typography variant="h4" sx={{ fontWeight: "bold", mt: 1, }}>
                         <AnimatedCounter value={card.count} includeDecimals={false} color="white" fontSize='40px' />

@@ -20,6 +20,7 @@
     "chart.js": "^4.4.8",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^7.1.0",
+    "framer-motion": "^12.6.5",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.0",
     "react": "^19.0.0",
