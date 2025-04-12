@@ -66,15 +66,15 @@ const EmployeeScoreChat = ({ data }) => {
                                     {text + ' '}
                                     <motion.span
                                         animate={{
-                                            scale: [1, 1.2, 1],
-                                            rotate: [0, -10, 10, -10, 0],
+                                            scale: [1.7],
+                                            rotate: [0, -10, 10, -10, 0, 0],
                                         }}
                                         transition={{
                                             repeat: Infinity,
                                             duration: 1.5,
                                             ease: "easeInOut"
                                         }}
-                                        style={{ display: 'inline-block', marginLeft: 4 }}
+                                        style={{ display: 'inline-block', marginLeft: 2 }}
                                     >
                                         {emoji}
                                     </motion.span>

@@ -30,7 +30,7 @@ const EmployeeSystemLog = () => {
                 const response = await api.get(
                     `${import.meta.env.VITE_BASE_URL}/employee/system-log/employee/latest/${empId}`,
                     {
-                        headers:{'Authorization' : `Bearer ${authToken}`}
+                        headers: { 'Authorization': `Bearer ${authToken}` }
                     }
                 );
                 const logs = response.data;
@@ -71,7 +71,11 @@ const EmployeeSystemLog = () => {
                 emp_id: empId,
                 ip_address: await fetchClientIp(),
                 start_time: new Date().toISOString()
-            });
+            },
+                {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                }
+            );
             setLogStatus('logged_in');
             toast.success('Successfully logged in!');
         } catch (err) {
@@ -88,6 +92,8 @@ const EmployeeSystemLog = () => {
                 emp_id: empId,
                 ip_address: await fetchClientIp(),
                 end_time: new Date().toISOString()
+            }, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
             });
             setLogStatus('logged_out');
             toast.success('Successfully logged out!');
