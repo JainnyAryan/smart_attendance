@@ -5,7 +5,7 @@ import { BadgeOutlined, Delete, Domain, Email, Numbers, Person } from '@mui/icon
 import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/api';
+import api from '../utils/api';
 
 const AddEmployee = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, employeeData, onCloseEditMode, setEmployees }) => {
     const [formData, setFormData] = useState({

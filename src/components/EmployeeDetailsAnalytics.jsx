@@ -31,7 +31,7 @@ import EmployeeAnalyticsChart from "./EmployeeAnalyticsChart";
 import { useAuth } from "../context/AuthContext";
 import AttendanceCalendar from "./AttendanceCalendar";
 import LogList from "./LogList";
-import api from "../api/api";
+import api from "../utils/api";
 
 dayjs.extend(isoWeek);
 

@@ -5,7 +5,7 @@ import { BadgeOutlined, Delete, Domain, Numbers, Person } from '@mui/icons-mater
 import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/api';
+import api from '../utils/api';
 
 const AddDesignation = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, designationData, onCloseEditMode, setDesignations }) => {
     const [formData, setFormData] = useState({

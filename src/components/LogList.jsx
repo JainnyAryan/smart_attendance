@@ -20,7 +20,7 @@ import {
     CircularProgress,
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
-import api from "../api/api";
+import api from "../utils/api";
 
 const LogList = ({ empId, logType }) => {
     const [logs, setLogs] = useState([]);

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, Typography, Stack, Switch, Paper, Divider } from '@mui/material';
 import CircularSlider from '@fseehawer/react-circular-slider';
 import { AnimatedCounter } from 'react-animated-counter';
-import api from '../../api/api';
+import api from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 
 const WhatIfScorePanelChat = () => {

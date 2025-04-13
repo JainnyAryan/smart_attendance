@@ -5,7 +5,7 @@ import { IconClock } from '@tabler/icons-react';
 import { AccessTime, Timer, TimerOff, WatchLater, CheckCircleOutline, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/api';
+import api from '../utils/api';
 
 const AddShift = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, shiftData, onCloseEditMode, setShifts }) => {
     const [formData, setFormData] = useState({

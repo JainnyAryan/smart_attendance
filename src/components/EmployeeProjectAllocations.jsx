@@ -4,7 +4,7 @@ import {
     TableHead, TableRow, Paper, Typography, Box, Stack, Select, MenuItem, LinearProgress, Button, Collapse
 } from '@mui/material';
 import axios from 'axios';
-import api from '../api/api';
+import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 

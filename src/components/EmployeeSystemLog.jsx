@@ -13,7 +13,7 @@ import {
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import api from '../api/api';
+import api from '../utils/api';
 
 const EmployeeSystemLog = () => {
     const [logStatus, setLogStatus] = useState(null);

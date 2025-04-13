@@ -18,7 +18,7 @@ import {
 import { CalendarMonth, Code, Delete, Description, Group, Label, Star } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/api';
+import api from '../utils/api';
 
 const AddProject = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, projectData, onCloseEditMode }) => {
     const [formData, setFormData] = useState({

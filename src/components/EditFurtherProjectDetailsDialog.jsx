@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import { Search, AddCircleOutline, RemoveCircleOutline } from "@mui/icons-material";
 import { toast } from "react-toastify";
-import api from "../api/api";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefresh }) => {
@@ -98,7 +98,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
         }
     };
 
-    
+
 
     const handleAddSkill = (skill) => {
         if (skill.trim() && !updatedProject.required_skills.includes(skill.trim())) {
@@ -212,7 +212,7 @@ const EditFurtherProjectDetailsDialog = ({ open, onClose, project, triggerRefres
                     />
                 </Box>
 
-                
+
 
             </DialogContent>
             <DialogActions>

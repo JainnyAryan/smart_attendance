@@ -5,7 +5,7 @@ import { BadgeOutlined, Delete, Domain, Numbers, Person } from '@mui/icons-mater
 import { IconClock } from '@tabler/icons-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/api';
+import api from '../utils/api';
 
 const AddDepartment = ({ isOpen, setIsOpen, triggerRefreshListFlag, isEditMode, departmentData, onCloseEditMode, setDepartments }) => {
     const [formData, setFormData] = useState({

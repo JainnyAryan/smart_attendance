@@ -1,5 +1,5 @@
-import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LoginPage from "../pages/LoginPage";
 import NotFoundPage from "../pages/NotFoundPage";
@@ -16,9 +16,17 @@ import EmployeeDetailsAnalyticsPage from "../pages/admin/EmployeeDetailsAnalytic
 import ProjectsPage from "../pages/admin/ProjectsPage";
 import ChatBotPage from "../pages/ChatBotPage";
 import EmployeeProjectAllocationsPage from "../pages/employee/EmployeeProjectAllocationsPage";
+import { setNavigate } from "../utils/navigation";
 
 const RoutesList = () => {
   const { loading, user } = useAuth();
+
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setNavigate(navigate);
+  }, [navigate]);
 
   if (loading) return null;
 

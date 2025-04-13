@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Avatar, Box, ButtonBase, CardActionArea, Container, Paper, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { ArrowForward, ArrowOutward, BadgeOutlined, Domain, People, Work } from '@mui/icons-material';
 import { IconClock } from '@tabler/icons-react';
 import { AnimatedCounter } from 'react-animated-counter';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/api';
-import TouchRipple from '@mui/material/ButtonBase/TouchRipple';
+import api from '../utils/api';
 import { useNavigate } from 'react-router-dom';
-import ChatBot from './ChatBot';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -47,15 +44,15 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <Container sx={{ width: "100%", maxWidth: "100dvw", padding: 3 }}>
-      <Grid container spacing={2} justifyContent="center">
+    <Container sx={{ width: "100%", height: "90dvh", maxWidth: "100dvw", padding: 3 }}>
+      <Grid container spacing={2} justifyContent="center" height={'100%'}>
         {cardData.map((card, index) => {
           const isLastItem = index === cardData.length - 1;
           const isOdd = cardData.length % 2 !== 0;
           const gridSize = isLastItem && isOdd ? { xs: 12, sm: 12, md: 12 } : { xs: 12, sm: 6, md: 6 };
           return (
-            <Grid key={index} item size={{ ...gridSize }}>
-              <CardActionArea sx={{ borderRadius: 2 }} onClick={() => { navigate(card.link); }}>
+            <Grid key={index} size={{ ...gridSize }}>
+              <CardActionArea sx={{ borderRadius: 2, flexGrow: 1 }} onClick={() => { navigate(card.link); }}>
                 <Paper
                   elevation={4}
                   sx={{

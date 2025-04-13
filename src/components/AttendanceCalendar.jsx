@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
-import api from "../api/api";
+import api from "../utils/api";
 
 dayjs.extend(isoWeek);
 

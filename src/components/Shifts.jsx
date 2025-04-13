@@ -4,7 +4,7 @@ import { Container, IconButton, Paper, Table, TableBody, TableCell, TableContain
 import { Edit, Delete } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/api';
+import api from '../utils/api';
 
 const Shifts = ({ refreshListFlag, openEditDialog }) => {
     const [shifts, setShifts] = useState([]);

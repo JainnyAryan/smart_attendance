@@ -5,7 +5,7 @@ import styles from "./styles/Chatbot.module.css";
 import AllProjects from "./chatbot/AllProjects";
 import EmployeeDetailsCard from "./chatbot/EmployeeDetailsCard";
 import ProjectAllocationsChat from "./chatbot/ProjectAllocationsChat";
-import api from "../api/api";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import ProjectAllocationSuggestionsChat from "./chatbot/ProjectAllocationSuggestionsChat";
 import ProjectDetailsChat from "./chatbot/ProjectDetailsChat";

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext';
-import api from '../api/api';
+import api from '../utils/api';
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputAdornment, InputLabel, List, ListItem, ListItemButton, ListItemText, MenuItem, Paper, Select, Stack, Table, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { AddCircleOutline, CheckCircle, RemoveCircleOutline, Search, Undo } from '@mui/icons-material';
 import { toast } from 'react-toastify';
@@ -34,6 +34,7 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
     const [allocationsToBeRemoved, setAllocationsToBeRemoved] = useState([]);
     const [newAllocations, setNewAllocations] = useState([]);
     const [employees, setEmployees] = useState([]);
+    const [employeeScores, setEmployeeScores] = useState([]);
     const [suggestedEmployees, setSuggestedEmployees] = useState([]);
     const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [filters, setFilters] = useState({
@@ -55,11 +56,36 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
             const response = await api.get(`${import.meta.env.VITE_BASE_URL}/admin/employees/`, {
                 headers: { Authorization: `Bearer ${authToken}` },
             });
-            setEmployees(response.data);
-            setFilteredEmployees(response.data);
-            await fetchSuggestedEmployees(response.data);
+            const employeesData = response.data;
+            const mergedEmployees = await fetchEmployeeScores(employeesData);
+            mergedEmployees.sort((a, b) => b.score - a.score);
+            setEmployees(mergedEmployees);
+            setFilteredEmployees(mergedEmployees);
+            await fetchSuggestedEmployees(mergedEmployees);
         } catch (error) {
             console.error("Error fetching employees:", error);
+        }
+    };
+
+    const fetchEmployeeScores = async (employeesData) => {
+        if (!employeesData.length) return [];
+        try {
+            const response = await api.get(`${import.meta.env.VITE_BASE_URL}/performance/admin/employee-performance-scores/`, {
+                headers: { Authorization: `Bearer ${authToken}` },
+            });
+            const employeeScores = response.data;
+            const mergedEmployees = employeesData.map(emp => {
+                console.log(emp.id);
+                const scoreObj = employeeScores.find(sc => sc.employee_id === String(emp.id));
+                console.log(scoreObj);
+                return {
+                    ...emp,
+                    score: scoreObj ? scoreObj.score : 0,
+                };
+            });
+            return mergedEmployees;
+        } catch (error) {
+            console.error("Error fetching employee scores:", error);
         }
     };
 
@@ -71,12 +97,10 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                     headers: { Authorization: `Bearer ${authToken}` },
                 }
             );
-            const suggestedEmployeesIds = response.data; // List of employee IDs in priority order
-            // Filter employees based on the suggested IDs
+            const suggestedEmployeesIds = response.data;
             const suggestedEmployeesList = employees
                 .filter(emp => suggestedEmployeesIds.includes(emp.id))
                 .sort((a, b) => suggestedEmployeesIds.indexOf(a.id) - suggestedEmployeesIds.indexOf(b.id)); // Preserve order
-            console.log(suggestedEmployeesList);
             setSuggestedEmployees(suggestedEmployeesList);
         } catch (error) {
             console.error("Error fetching suggested employees:", error);
@@ -173,7 +197,6 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                 role: roles.length ? roles[0] : ""
             }
         );
-        console.log(newAllocation);
         setNewAllocations((prev) => [...prev, newAllocation]);
 
     }
@@ -259,16 +282,16 @@ const AllocateProjectEmployees = ({ open, onClose, project, triggerRefresh }) =>
                 <Box mt={1.5} />
                 <Typography variant="body1"><b>Suggested Employees</b>  ({suggestedEmployees.length})</Typography>
                 <Box mt={1.5} />
-                <List sx={{ maxHeight: "50dvh", overflowY: "auto", overflowX: "auto" }} disablePadding>
+                <List sx={{ maxHeight: "40dvh", overflowY: "auto", overflowX: "auto" }} disablePadding>
                     {suggestedEmployees.map(emp => (
                         <ListItem key={emp.id} sx={{ border: 1, borderColor: "rgba(0, 0, 0, 0.1)" }} disablePadding>
                             <ListItemButton sx={{ padding: 0, paddingLeft: 2, display: "flex", justifyContent: "space-between" }} disableRipple>
                                 <Stack direction={'column'}>
-                                    <ListItemText primary={emp.name} secondary={emp.emp_code} sx={{ marginBottom: 0 }} />
-                                    <Typography variant='body2' color='success' sx={{ marginBottom: 1 }}>Experience: {emp.experience} years</Typography>
+                                    <ListItemText primary={emp.name} secondary={`${emp.emp_code} | Score: ${emp.score}`} />
+                                    <ListItemText secondary={`Experience: ${emp.experience} yrs`} />
                                     <Box>
                                         {emp.skills.map((skill) =>
-                                            <Chip label={skill} variant={project.required_skills.includes(skill) ? 'filled' : 'outlined'} color={project.required_skills.includes(skill) ? 'success' : ''} sx={{ fontSize: 12, padding: 0, height: 18, marginBottom: 0.5, marginRight: 0.5 }} />
+                                            <Chip label={skill} variant={project.required_skills.some(s => s === skill) ? 'filled' : 'outlined'} color='success' sx={{ fontSize: 12, padding: 0, height: 18, marginBottom: 0.5, marginRight: 0.5 }} />
                                         )}
                                     </Box>
                                 </Stack>

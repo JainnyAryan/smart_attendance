@@ -10,7 +10,7 @@ import { Edit, Email, Search } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { IconEyeFilled } from '@tabler/icons-react';
-import api from '../api/api';
+import api from '../utils/api';
 
 const Employees = ({ refreshListFlag, openEditDialog }) => {
     const [employees, setEmployees] = useState([]);

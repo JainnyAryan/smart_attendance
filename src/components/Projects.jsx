@@ -9,7 +9,7 @@ import {
 import { Edit, ExpandMore, AddCircleOutline, Close, People } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import api from '../api/api';
+import api from '../utils/api';
 import EditFurtherProjectDetailsDialog from './EditFurtherProjectDetailsDialog';
 import AllocateProjectEmployees from './AllocateProjectEmployees';
 

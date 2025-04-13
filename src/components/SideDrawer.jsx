@@ -11,7 +11,7 @@ const SideDrawer = ({ key, drawerItems, isOpen, setIsOpen }) => {
             <Box width={250} height={100} bgcolor={'white'} >
                 <List>
                     {drawerItems.map((item) =>
-                        <ListItem disablePadding>
+                        <ListItem key={item.link} disablePadding>
                             <ListItemButton
                                 onClick={() => {
                                     setIsOpen(false);

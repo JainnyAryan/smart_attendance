@@ -1,5 +1,5 @@
 import axios from 'axios';
-import api from '../api/api';
+import api from '../utils/api';
 
 
 // Log attendance in
