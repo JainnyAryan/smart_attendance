@@ -15,6 +15,7 @@ import MyProjectAllocations from "./chatbot/MyProjectAllocations";
 import EmployeeScoreChat from "./chatbot/EmployeeScoreChat";
 import EmployeeScoreBreakdownChat from "./chatbot/EmployeeScoreBreakdownChat";
 import WhatIfScorePanelChat from "./chatbot/WhatIfScorePanelChat";
+import FeatureSuggestionsChat from "./chatbot/FeatureSuggestionsChat";
 
 const ChatBot = () => {
     const { authToken } = useAuth();
@@ -66,6 +67,9 @@ const ChatBot = () => {
 
     const getChatComponent = (msg) => {
         switch (msg.intent) {
+            //GENERAL
+            case "features":
+                return <FeatureSuggestionsChat data={msg.content.data} />;
             //ADMIN INTENTS
             case "employee_attendance_summary":
                 return <AttendanceSummary data={msg.content.data} />;
