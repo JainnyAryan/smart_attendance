@@ -69,7 +69,7 @@ const ChatBot = () => {
         switch (msg.intent) {
             //GENERAL
             case "features":
-                return <FeatureSuggestionsChat data={msg.content.data} />;
+                return <FeatureSuggestionsChat data={msg.content.data} addToInput={(val) => { setInput(val); }} />;
             //ADMIN INTENTS
             case "employee_attendance_summary":
                 return <AttendanceSummary data={msg.content.data} />;

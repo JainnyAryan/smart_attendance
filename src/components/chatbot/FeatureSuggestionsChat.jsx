@@ -3,7 +3,7 @@ import { Box, Typography, Paper, Stack, Chip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 
-const FeatureSuggestionsChat = ({ data }) => {
+const FeatureSuggestionsChat = ({ data, addToInput }) => {
   const features = data?.features;
   const theme = useTheme();
 
@@ -24,6 +24,7 @@ const FeatureSuggestionsChat = ({ data }) => {
                 label={feature}
                 variant="outlined"
                 color="primary"
+                onClick={() => addToInput(feature)}
                 sx={{ fontWeight: 500, fontSize: '14px', p: 1 }}
               />
             </motion.div>
